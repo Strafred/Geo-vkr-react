@@ -2,6 +2,54 @@
   text-align: center;
 }
 
+#div_top_hypers {
+  background-color:#eeeeee;
+  display:inline;
+}
+#ul_top_hypers li{
+  display: inline;
+}
+
+.square {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 100px;
+}
+
+.square:focus {
+  background: #61dafb;
+}
+
+.mapContainer {
+  border: 2px solid grey;
+  margin: 0 0  20px 0;
+}
+
+.buttonText {
+  font-size: 10px;
+  margin: 0 0 0 0;
+}
+
+.popupList {
+  padding: 0px 0px 0px 8px; font-size: 10px;
+}
+
+.leaflet-container {
+  width: 40vw;
+  height: 50vh;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
