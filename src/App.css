@@ -25,12 +25,28 @@
   width: 100px;
 }
 
+.availability {
+  margin: 0 0 1em 0;
+  border-top: 0.5em solid #abe2c0;
+  border-bottom: 4.6em solid #abe2c0;
+}
+
 .square:focus {
   background: #61dafb;
 }
 
+.page {
+  background-color: #eaeff6;
+}
+
+.graphic {
+  margin-left: 27.9%;
+  margin-right: 27.9%;
+  border: 3px solid grey;
+}
+
 .mapContainer {
-  border: 2px solid grey;
+  border: 3px solid grey;
   margin: 0 0  20px 0;
 }
 
@@ -44,8 +60,8 @@
 }
 
 .leaflet-container {
-  width: 40vw;
-  height: 50vh;
+  width: 50%;
+  height: 25em;
   margin-left: auto;
   margin-right: auto;
 }
