@@ -4,16 +4,14 @@ import './NetworkButton';
 import {NetworkButton} from "./NetworkButton";
 import Plot from 'react-plotly.js';
 import {getNetworks, requestStationsXML} from "./utils/requestUtils";
+import {compareStationsByName} from "./utils/sortStations";
 
 export class Availability extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       loadedNetworks: [],
-      availability: null,
       stationsData: [],
-      dataPiece: null,
-      plotName: '',
     };
   }
 
@@ -73,6 +71,7 @@ export class Availability extends React.Component {
               type: 'scatter',
               line: {color: '#1f77b4'},
               showlegend: false,
+              hoverinfo: 'x',
             }
 
             allData.push(dataPiece);
@@ -102,14 +101,21 @@ export class Availability extends React.Component {
             </div>
           ))}
         </div>
-        {this.state.stationsData.map((station) => (
+        {this.state.stationsData.sort(compareStationsByName).filter(station => station.allData.length > 0).map((station) => (
           <Plot className="graphic"
                 data={station.allData}
                 layout={{
                   width: 1500,
-                  height: 350,
+                  height: 200,
                   yaxis: {fixedrange: true, range: [0, 1.05]},
-                  title: station.stationName
+                  title: station.stationName,
+                  margin: {
+                    l: 40,
+                    r: 40,
+                    b: 40,
+                    t: 40,
+                    pad: 4
+                  },
                 }}
           />
         ))}
