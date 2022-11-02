@@ -4,13 +4,18 @@ import './StationButton';
 import {StationButton} from "./StationButton";
 import Plot from 'react-plotly.js';
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 export class Availability extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      loadedStations: [],
+      loadedNetworks: [],
       availability: null,
-      allData: [],
+      stationsData: [],
       dataPiece: null,
       plotName: '',
     };
@@ -33,84 +38,96 @@ export class Availability extends React.Component {
     let fdsn = xmlDocResponse.getElementsByTagName('FDSNStationXML')[0]; // fdsn
     let networks = fdsn.getElementsByTagName('Network'); // all networks
 
-    let loadedStationsTemp = [];
 
+    let loadedNetworksTemp = [];
     for (let i = 0; i < networks.length; i++) {
-      let currentNetworkDescription = networks[i].getElementsByTagName("Description")[0]; //get network
+      let networkName = networks[i].getElementsByTagName("Description")[0].firstChild; //get network
+
+      let loadedStationsTemp = [];
       let stations = networks[i].getElementsByTagName("Station"); // get all network stations
-
       for (let j = 0; j < stations.length; j++) {
-        let latitude = stations[j].getElementsByTagName("Latitude")[0];
-        let longitude = stations[j].getElementsByTagName("Longitude")[0];
-        let elevation = stations[j].getElementsByTagName("Elevation")[0];
         let stationName = stations[j].getElementsByTagName("Site")[0].getElementsByTagName("Name")[0];
-
-        let stationInfo = {};
-
-        stationInfo["stationName"] = stationName.firstChild.nodeValue;
-        stationInfo["network"] = currentNetworkDescription.firstChild.nodeValue;
-        stationInfo["latitude"] = latitude.firstChild.nodeValue;
-        stationInfo["longitude"] = longitude.firstChild.nodeValue;
-        stationInfo["elevation"] = elevation.firstChild.nodeValue;
-
-        loadedStationsTemp.push(stationInfo);
+        loadedStationsTemp.push(stationName.firstChild.nodeValue);
       }
+
+      let networkInfo = {};
+      networkInfo['networkName'] = networkName;
+      networkInfo['networkStations'] = loadedStationsTemp;
+      loadedNetworksTemp.push(networkInfo);
     }
 
     this.setState({
-      loadedStations: loadedStationsTemp,
+      loadedNetworks: loadedNetworksTemp,
     })
   }
 
-  getAvailability(station) {
-    const getAvailabilityURL = 'http://84.237.89.72:8080/fdsnws/availability/1/query?starttime=2021-10-01T00%3A00%3A00&merge=overlap&mergegaps=1800&endtime=2021-10-31T00%3A00%3A00&station=' + station;
+  async getAvailability(stations) {
+    console.log(stations);
+    let stationsDataTemp = [];
 
-    fetch(getAvailabilityURL)
-      .then(response => response.text())
-      .then(data => {
-        var lines = data.split("\n");
-        var numLines = lines.length;
-        var currentSection;
-        var sections = [];
-        var phrases = [];
+    const requests = stations.map((station) => {
+      const getAvailabilityURL = 'http://84.237.89.72:8080/fdsnws/availability/1/query?starttime=2021-10-01T00%3A00%3A00&merge=overlap&mergegaps=1800&endtime=2021-10-31T00%3A00%3A00&station=' + station;
 
-        var i;
-        var allDataTemp = [];
+      fetch(getAvailabilityURL)
+        .then(response => response.text())
+        .then(data => {
+          var lines = data.split("\n");
+          var numLines = lines.length;
+          var currentSection;
+          var sections = [];
+          var phrases = [];
 
-        for (i = 1; i < numLines - 1; i++) {
-          var line = lines[i];
-          var puk = line.split(" ")
-          var from = puk[18];
-          var to = puk[20];
+          var i;
+          var allDataTemp = [];
 
-          from = from.replaceAll("T", " ");
-          var iend = from.indexOf(".");
-          from = from.substring(0, iend);
-           console.log(from);
+          for (i = 1; i < numLines - 1; i++) {
+            var line = lines[i];
+            var puk = line.split(" ")
+            var from = puk[18];
+            var to = puk[20];
 
-          to = to.replaceAll("T", " ");
-          var iend = to.indexOf(".");
-          to = to.substring(0, iend);
-           console.log(to);
+            from = from.replaceAll("T", " ");
+            var iend = from.indexOf(".");
+            from = from.substring(0, iend);
+            // console.log(from);
 
-          var dataPiece = {
-            x: [from, to],
-            y: [1, 1],
-            fill: 'tozeroy',
-            type: 'scatter',
-            line: {color: '#1f77b4'},
-            showlegend: false,
+            to = to.replaceAll("T", " ");
+            var iend = to.indexOf(".");
+            to = to.substring(0, iend);
+            // console.log(to);
+
+            var dataPiece = {
+              x: [from, to],
+              y: [1, 1],
+              fill: 'tozeroy',
+              type: 'scatter',
+              line: {color: '#1f77b4'},
+              showlegend: false,
+            }
+            allDataTemp.push(dataPiece);
           }
-          allDataTemp.push(dataPiece);
-        }
-        // var allDataJSON = {allDataTemp}
-         // console.log(allDataJSON);
+          // var allDataJSON = {allDataTemp}
+          // console.log(allDataJSON);
 
-        this.setState({
-          allData: allDataTemp,
-          dataPiece: dataPiece,
+          let stationInfo = {};
+          stationInfo['stationName'] = station;
+          stationInfo['allData'] = allDataTemp;
+
+          stationsDataTemp.push(stationInfo);
+          this.setState({
+            stationsData: stationsDataTemp,
+          });
         });
-      });
+    });
+    //
+    // await sleep(5000);
+    //
+    //   Promise.all(requests).then(() => {
+    //   console.log(stationsDataTemp);
+    //   this.setState({
+    //     stationsData: stationsDataTemp,
+    //   });
+    // });
   }
 
   render() {
@@ -118,20 +135,22 @@ export class Availability extends React.Component {
       <div>
         <div className="availability">
         <div>
-          {this.state.loadedStations.map((station) => (
+          {this.state.loadedNetworks.map((network) => (
             <div onClick={() => {
-              this.getAvailability(station.stationName);
-              this.setState({plotName: station.stationName});
+              this.getAvailability(network.networkStations);
+              // this.setState({plotName: station.stationName});
             }}>
-              <StationButton stationName={station.stationName} setAvailability={this.setAvailability}/>
+              <StationButton stationName={network.networkName.nodeValue}/>
             </div>
           ))}
         </div>
         </div>
+        {this.state.stationsData.map((station) => (
           <Plot className="graphic"
-            data={this.state.allData}
-            layout={ {width: 650, height: 450, yaxis: {fixedrange: true, range:[0, 1.05]}, title: this.state.plotName} }
+                data={station.allData}
+                layout={ {width: 1500, height: 350, yaxis: {fixedrange: true, range:[0, 1.05]}, title: station.stationName} }
           />
+        ))}
       </div>
     )
   }
