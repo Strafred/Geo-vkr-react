@@ -2,14 +2,6 @@
   text-align: center;
 }
 
-#div_top_hypers {
-  background-color:#eeeeee;
-  display:inline;
-}
-#ul_top_hypers li{
-  display: inline;
-}
-
 .square {
   background: #fff;
   border: 1px solid #999;
@@ -20,15 +12,13 @@
   height: 34px;
   margin-right: 10px;
   margin-top: -1px;
-  padding: 0;
   text-align: center;
   width: auto;
+  padding: 0 0.5em 0 0.5em;
 }
 
-.availability {
-  margin: 0 0 1em 0;
-  border-top: 0.5em solid #abe2c0;
-  border-bottom: 4.6em solid #abe2c0;
+.square:hover {
+  background: #e2dfdf;
 }
 
 .square:focus {
@@ -57,7 +47,8 @@
 }
 
 .popupList {
-  padding: 0px 0px 0px 8px; font-size: 10px;
+  padding: 0 0 0 8px;
+  font-size: 10px;
 }
 
 .leaflet-container {

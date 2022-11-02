@@ -1,19 +1,15 @@
 import React from 'react';
 import {MapContainer, Marker, Popup, TileLayer} from "react-leaflet";
 import './App.css';
-import L from 'leaflet';
-import './StationButton';
+import './NetworkButton';
+import {getNetworks} from "./utils/requestUtils";
+import {markerIcon} from "./constants/stationMarker";
 
 export class Map extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       loadedStations: [],
-      markerIcon: L.icon({
-        iconUrl: 'https://geofon.gfz-potsdam.de/img/triangle-gfz.svg',
-        popupAnchor: [12, -4]
-      }),
-      showingAvailability: "null",
     };
   }
 
@@ -42,7 +38,6 @@ export class Map extends React.Component {
       let channelsList = [];
       for (let i = 0; i < channels.length; i++) {
         let currentChannelName = channels[i].getAttribute("code");
-        let startDate = channels[i].getAttribute("startDate");
 
         let latitude = channels[i].getElementsByTagName("Latitude")[0];
         let longitude = channels[i].getElementsByTagName("Longitude")[0];
@@ -50,10 +45,6 @@ export class Map extends React.Component {
         let depth = channels[i].getElementsByTagName("Depth")[0];
         let azimuth = channels[i].getElementsByTagName("Azimuth")[0];
         let dip = channels[i].getElementsByTagName("Dip")[0];
-        let sampleRate = channels[i].getElementsByTagName("SampleRate")[0];
-
-        let count = i + 1;
-
         let channel = {};
 
         channel["currentChannelName"] = currentChannelName;
@@ -70,21 +61,7 @@ export class Map extends React.Component {
       return channelsList;
     }
 
-    let xmlHttp;
-    if (window.XMLHttpRequest) {
-      xmlHttp = new XMLHttpRequest();
-    } else {
-      xmlHttp = new window.ActiveXObject("Microsoft.XMLHTTP");
-    }
-
-    const stationsRequestURL = "http://84.237.89.72:8080/fdsnws/station/1/query?level=station&format=xml";
-    xmlHttp.open("GET", stationsRequestURL, false);
-    xmlHttp.send()
-
-    let xmlDocResponse = xmlHttp.responseXML;
-
-    let fdsn = xmlDocResponse.getElementsByTagName('FDSNStationXML')[0]; // fdsn
-    let networks = fdsn.getElementsByTagName('Network'); // all networks
+    let networks = getNetworks();
 
     for (let i = 0; i < networks.length; i++) {
       let currentNetworkDescription = networks[i].getElementsByTagName("Description")[0]; //get network
@@ -115,35 +92,28 @@ export class Map extends React.Component {
   render() {
     this.componentDidMount(); // not asynchronous now..
     return (
-      <div>
-        <MapContainer className="mapContainer" center={[60, 85]} zoom={2} scrollWheelZoom={true}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          {this.state.loadedStations.map((station) => (
-            <Marker position={[station.latitude, station.longitude]}
-                    icon={this.state.markerIcon}
-                    title={"Network: " + station.network + ", station: " + station.stationName}>
-              <Popup>
-                <div id="div_top_hypers">
-                  <ul id="div_top_hypers" className="popupList"><strong>Channel, Latitude, Longitude,
-                    Elevation, Depth,
-                    Azimuth, Dip, SampleRate:</strong>
-                    {station.channels.map((channel) => (
-                      <li
-                        class="a_top_hypers">{channel.currentChannelName} | {channel.latitude} | {channel.longitude} |
-                        {channel.elevation} | {channel.depth} | {channel.azimuth} | {channel.dip} |
-                        {channel.sampleRate}
-                        + </li>
-                    ))}
-                  </ul>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </ MapContainer>
-      </div>
+      <MapContainer className="mapContainer" center={[60, 85]} zoom={2} scrollWheelZoom={true}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {this.state.loadedStations.map((station) => (
+          <Marker position={[station.latitude, station.longitude]}
+                  icon={markerIcon}
+                  title={"Network: " + station.network + ", station: " + station.stationName}>
+            <Popup>
+              <ul className="popupList"><strong>Channel, Latitude, Longitude,
+                Elevation, Depth,
+                Azimuth, Dip, SampleRate:</strong>
+                {station.channels.map((channel) => (
+                  <li>{channel.currentChannelName} | {channel.latitude} | {channel.longitude} |
+                    {channel.elevation} | {channel.depth} | {channel.azimuth} | {channel.dip} |
+                    {channel.sampleRate}</li>
+                ))}
+              </ul>
+            </Popup>
+          </Marker>
+        ))}
+      </ MapContainer>
     );
   }
 }
