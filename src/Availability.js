@@ -3,7 +3,7 @@ import './App.css';
 import './NetworkButton';
 import {NetworkButton} from "./NetworkButton";
 import Plot from 'react-plotly.js';
-import {getNetworks, requestStationsXML} from "./utils/requestUtils";
+import {getNetworks} from "./utils/requestUtils";
 import {compareStationsByName} from "./utils/sortStations";
 
 export class Availability extends React.Component {
@@ -44,7 +44,7 @@ export class Availability extends React.Component {
     console.log(stations);
     let stationsData = [];
     stations.map((station) => {
-      const getAvailabilityURL = 'http://84.237.89.72:8080/fdsnws/availability/1/query?starttime=2021-10-01T00%3A00%3A00&merge=overlap&mergegaps=1800&endtime=2021-10-31T00%3A00%3A00&station=' + station;
+      const getAvailabilityURL = 'http://84.237.89.72:8080/fdsnws/availability/1/query?starttime=2021-10-01T00%3A00%3A00&mergegaps=1800&endtime=2021-10-31T00%3A00%3A00&station=' + station;
 
       fetch(getAvailabilityURL)
         .then(response => response.text())
@@ -59,10 +59,8 @@ export class Availability extends React.Component {
             let from = availabilityString[18];
             let to = availabilityString[20];
 
-            from = from.replaceAll("T", " ");
-            from = from.substring(0, from.indexOf("."));
-            to = to.replaceAll("T", " ");
-            to = to.substring(0, to.indexOf("."));
+            from = from.replaceAll("T", " ").substring(0, from.indexOf("."));
+            to = to.replaceAll("T", " ").substring(0, to.indexOf("."));
 
             let dataPiece = {
               x: [from, to],
@@ -116,6 +114,8 @@ export class Availability extends React.Component {
                     t: 40,
                     pad: 4
                   },
+                  hovermode: 'x closest',
+                  hoverdistance: 1000
                 }}
           />
         ))}
