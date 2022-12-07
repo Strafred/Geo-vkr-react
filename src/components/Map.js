@@ -1,13 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {MapContainer, Marker, Popup, TileLayer} from "react-leaflet";
-import './styles/App.css';
-import './styles/Map.css';
+import {MapContainer, TileLayer} from "react-leaflet";
+import '../styles/App.css';
+import '../styles/Map.css';
+import '../styles/StationWindow.css';
 import './NetworkButton';
-import {getNetworks} from "./utils/requestUtils";
-import {markerIcon} from "./constants/stationMarker";
+import {getNetworks} from "../utils/requestUtils";
+import {StationMarker} from "./StationMarker";
+import {ChosenStationWindow} from "./ChosenStationWindow";
 
 export const Map = () => {
   const [loadedStations, setLoadedStations] = useState([]);
+  const [chosenStation, setChosenStation] = useState(null);
 
   useEffect(() => {
     function loadStationChannels(stationTextName) {
@@ -85,28 +88,18 @@ export const Map = () => {
     }
   }, []);
 
+  console.log(chosenStation);
+
   return (
-    <MapContainer className="mapContainer" center={[60, 85]} zoom={2} scrollWheelZoom={true}>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      {loadedStations.map((station) => (
-        <Marker position={[station.latitude, station.longitude]}
-                icon={markerIcon}
-                title={"Network: " + station.network + ", station: " + station.stationName}>
-          <Popup>
-            <ul className="popupList"><strong>Channel, Latitude, Longitude,
-              Elevation, Depth,
-              Azimuth, Dip, SampleRate:</strong>
-              {station.channels.map((channel) => (
-                <li>{channel.currentChannelName} | {channel.latitude} | {channel.longitude} |
-                  {channel.elevation} | {channel.depth} | {channel.azimuth} | {channel.dip} |
-                  {channel.sampleRate}</li>
-              ))}
-            </ul>
-          </Popup>
-        </Marker>
+    <div>
+    <MapContainer className="mapContainer" center={[65, 90]} zoom={3} scrollWheelZoom={true}>
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+      {loadedStations.map((station, index) => (
+        <StationMarker station={station} chooseStation={setChosenStation} key={index}/>
       ))}
     </ MapContainer>
+      {chosenStation &&
+        <ChosenStationWindow station={chosenStation} setChosenStation={setChosenStation}/>}
+    </div>
   );
-}
+};

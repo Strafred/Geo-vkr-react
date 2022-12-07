@@ -1,0 +1,94 @@
+.chosenStationWindow {
+  position: absolute;
+  bottom: 10%;
+  z-index: 10;
+  left: 3%;
+  /*display: flex;*/
+  /*flex-flow: column;*/
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border: #999999 0.18em solid;
+  width: 200px;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+.plotRef {
+  cursor: pointer;
+  color: #00889f;
+  text-decoration: none;
+  outline: 0;
+}
+
+.plotRef:hover {
+  cursor: pointer;
+  color: #00487b;
+  text-decoration: none;
+  outline: 0;
+}
+
+.stationCharacteristics {
+  padding: 0.3em 0 0.3em 0.3em;
+  display: flex;
+  flex-direction: column;
+  background-color: #d1dcdc;
+}
+
+.stationChar {
+  font-family: sans-serif;
+  font-size: 1em;
+}
+
+.stationInfo {
+  margin: 0.5em 0 0.1em 0;
+}
+
+.stationInfoHeader {
+  width: 100%;
+  font-weight: 700;
+  background: #737272;
+  color: #fff;
+  padding: 0.3em 0;
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.stationContent{
+  margin: 0.3em;
+}
+
+.stationName {
+  color: #333;
+  height: 40px;
+  line-height: 40px;
+  background-color: #e5e5e5;
+  padding-left: 6px;
+  padding-right: 6px;
+  font-size: 1.6em;
+  font-weight: 600;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+}
+
+.x {
+  float: right;
+  cursor: pointer;
+  align-self: center;
+}
+
+.questionMark {
+  cursor: pointer;
+  margin-left: 0.15em;
+  align-self: center;
+}
+
+.network {
+  font-size: 1em;
+  color: #888;
+}
