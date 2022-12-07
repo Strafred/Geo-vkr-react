@@ -1,10 +1,12 @@
 import React from 'react';
-import './App.css';
-import './NetworkButton';
-import {NetworkButton} from "./NetworkButton";
-import Plot from 'react-plotly.js';
-import {getNetworks} from "./utils/requestUtils";
-import {compareStationsByName} from "./utils/sortStations";
+import '../styles/App.css';
+import '../styles/Button.css';
+import '../styles/Availability.css';
+import '../NetworkButton';
+import {NetworkButton} from "../NetworkButton";
+import Plot from '../../node_modules/react-plotly.js/react-plotly';
+import {getNetworks} from "../utils/requestUtils";
+import {compareStationsByName} from "../utils/sortStations";
 
 export class Availability extends React.Component {
   constructor(props) {
@@ -89,7 +91,7 @@ export class Availability extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="availabilityComponent">
         <div>
           {this.state.loadedNetworks.map((network) => (
             <div onClick={() => {

@@ -1,19 +1,15 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {MapContainer, Marker, Popup, TileLayer} from "react-leaflet";
-import './App.css';
+import './styles/App.css';
+import './styles/Map.css';
 import './NetworkButton';
 import {getNetworks} from "./utils/requestUtils";
 import {markerIcon} from "./constants/stationMarker";
 
-export class Map extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loadedStations: [],
-    };
-  }
+export const Map = () => {
+  const [loadedStations, setLoadedStations] = useState([]);
 
-  componentDidMount() {
+  useEffect(() => {
     function loadStationChannels(stationTextName) {
       let xmlHttp;
 
@@ -84,36 +80,33 @@ export class Map extends React.Component {
         stationInfo["elevation"] = elevation.firstChild.nodeValue;
         stationInfo["channels"] = channels;
 
-        this.state.loadedStations.push(stationInfo);
+        setLoadedStations(prevStations => [...prevStations, stationInfo]);
       }
     }
-  }
+  }, []);
 
-  render() {
-    this.componentDidMount(); // not asynchronous now..
-    return (
-      <MapContainer className="mapContainer" center={[60, 85]} zoom={2} scrollWheelZoom={true}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {this.state.loadedStations.map((station) => (
-          <Marker position={[station.latitude, station.longitude]}
-                  icon={markerIcon}
-                  title={"Network: " + station.network + ", station: " + station.stationName}>
-            <Popup>
-              <ul className="popupList"><strong>Channel, Latitude, Longitude,
-                Elevation, Depth,
-                Azimuth, Dip, SampleRate:</strong>
-                {station.channels.map((channel) => (
-                  <li>{channel.currentChannelName} | {channel.latitude} | {channel.longitude} |
-                    {channel.elevation} | {channel.depth} | {channel.azimuth} | {channel.dip} |
-                    {channel.sampleRate}</li>
-                ))}
-              </ul>
-            </Popup>
-          </Marker>
-        ))}
-      </ MapContainer>
-    );
-  }
+  return (
+    <MapContainer className="mapContainer" center={[60, 85]} zoom={2} scrollWheelZoom={true}>
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      {loadedStations.map((station) => (
+        <Marker position={[station.latitude, station.longitude]}
+                icon={markerIcon}
+                title={"Network: " + station.network + ", station: " + station.stationName}>
+          <Popup>
+            <ul className="popupList"><strong>Channel, Latitude, Longitude,
+              Elevation, Depth,
+              Azimuth, Dip, SampleRate:</strong>
+              {station.channels.map((channel) => (
+                <li>{channel.currentChannelName} | {channel.latitude} | {channel.longitude} |
+                  {channel.elevation} | {channel.depth} | {channel.azimuth} | {channel.dip} |
+                  {channel.sampleRate}</li>
+              ))}
+            </ul>
+          </Popup>
+        </Marker>
+      ))}
+    </ MapContainer>
+  );
 }
