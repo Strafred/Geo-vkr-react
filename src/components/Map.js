@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {MapContainer, TileLayer} from "react-leaflet";
+import {MapContainer, Marker, Popup, TileLayer} from "react-leaflet";
 import '../styles/App.css';
 import '../styles/Map.css';
 import '../styles/StationWindow.css';
 import './NetworkButton';
+import {question} from "../constants/stationMarker";
 import {getNetworks} from "../utils/requestUtils";
 import {StationMarker} from "./StationMarker";
 import {ChosenStationWindow} from "./ChosenStationWindow";
+import {markerIcon, markerIconClicked, markerIconHovered} from "../constants/stationMarker";
 
 export const Map = () => {
   const [loadedStations, setLoadedStations] = useState([]);
@@ -92,15 +94,21 @@ export const Map = () => {
 
   return (
     <div>
-      <div className="warfaceReferal">
-        <div className="warfaceReferalText"><a href="https://ru.warface.com/news/1011251.html">Сезон "Плечом к плечу" — уже в игре!</a></div>
-        <a href="https://ru.warface.com/promo/referal/?ref=3oo74h8"><img src="https://ru.warface.com/custom/ub/aea94da75b60a6a301cbc0ff59600b05/75e73c3e659d5fbc23a3f3d54df17ae5/bar.jpg?ref1"/></a>
-      </div>
     <MapContainer className="mapContainer" center={[65, 90]} zoom={3} scrollWheelZoom={true}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
       {loadedStations.map((station, index) => (
         <StationMarker station={station} chooseStation={setChosenStation} key={index}/>
       ))}
+      <Marker className="stationMarker"
+              position={[84, 180]}
+              icon={question}>
+        <Popup>
+          <div className="warfaceReferal">
+            <div className="warfaceReferalText"><a href="https://ru.warface.com/news/1011251.html">Сезон "Плечом к плечу" — уже в игре!</a></div>
+            <a href="https://ru.warface.com/promo/referal/?ref=3oo74h8"><img src="https://ru.warface.com/custom/ub/aea94da75b60a6a301cbc0ff59600b05/75e73c3e659d5fbc23a3f3d54df17ae5/bar.jpg?ref1" width="300"/></a>
+          </div>
+        </Popup>
+                </Marker>
     </ MapContainer>
       {chosenStation &&
         <ChosenStationWindow station={chosenStation} setChosenStation={setChosenStation}/>}

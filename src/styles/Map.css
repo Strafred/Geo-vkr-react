@@ -12,9 +12,7 @@
 }
 
 .warfaceReferal {
-    position: absolute;
-    right: 3em;
-    top: 1em;
+    position: relative;
     z-index: 10;
 }
 
