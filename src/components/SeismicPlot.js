@@ -80,5 +80,5 @@ export function SeismicPlot({stationName}) {
 
   console.log(seismograms);
 
-  return seismograms.length > 0 ? <SeisPlot range={[start, end]} seis={seismograms}/> : <div>...</div>;
+  return seismograms.length > 0 ? <SeisPlot range={[start, end]} seis={seismograms}/> : <div></div>;
 }
