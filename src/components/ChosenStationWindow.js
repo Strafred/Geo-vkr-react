@@ -5,9 +5,6 @@ function StationInfo({station}) {
       <div>
       Station Info
       </div>
-      {/*<div className="questionMark">*/}
-      {/*  <img src="https://www.freeiconspng.com/uploads/help-icon-9.png" width="20" height="20" alt="help icon" />*/}
-      {/*</div>*/}
     </div>
     <div className="stationCharacteristics">
       <div className="stationChar"><strong>Latitude:</strong> {station.latitude}</div>

@@ -6,16 +6,11 @@ export const markerIcon = L.icon({
 });
 
 export const markerIconHovered = L.icon({
-  iconUrl: './triangle-gfz-hovered.svg',
+  iconUrl: 'triangle-gfz-hovered.svg',
   popupAnchor: [12, -4]
 });
 
 export const markerIconClicked = L.icon({
   iconUrl: 'triangle-gfz-clicked.svg',
-  popupAnchor: [12, -4]
-})
-
-export const question = L.icon({
-  iconUrl: 'triangle-gfz-question.svg',
   popupAnchor: [12, -4]
 })

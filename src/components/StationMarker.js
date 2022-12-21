@@ -1,7 +1,6 @@
 import React, {useState} from "react";
-import {markerIcon, markerIconClicked, markerIconHovered} from "../constants/stationMarker";
+import {markerIcon, markerIconClicked, markerIconHovered} from "../constants/stationMarkers";
 import {Marker, useMap} from "react-leaflet";
-import {StationPopup} from "./StationPopup";
 
 export const StationMarker = ({station, chooseStation}) => {
   const [mIcon, setMIcon] = useState(markerIcon);
@@ -26,7 +25,6 @@ export const StationMarker = ({station, chooseStation}) => {
                 map.flyTo([station.latitude, station.longitude], map.getZoom());
               }
             }}>
-      {/*<StationPopup station={station}/>*/}
     </Marker>
   );
 };

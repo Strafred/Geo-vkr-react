@@ -11,22 +11,6 @@
     z-index: 0;
 }
 
-.warfaceReferal {
-    position: relative;
-    z-index: 10;
-}
-
-.warfaceReferalText {
-    text-align: center;
-    color: crimson;
-    font: 1em Quantico, Arial, Helvetica, sans-serif;
-    text-transform: uppercase;
-    font-family: sans-serif;
-    font-weight: 800;
-    text-decoration: none;
-    outline: 0;
-}
-
 .stationMarker:hover {
     background-color: #f00;
 }
