@@ -11,6 +11,7 @@ import {ChosenStationWindow} from "./ChosenStationWindow";
 export const Map = () => {
   const [loadedStations, setLoadedStations] = useState([]);
   const [chosenStation, setChosenStation] = useState(null);
+  const [clickedStation, setClickedStation] = useState("");
 
   useEffect(() => {
     function loadStationChannels(stationTextName) {
@@ -88,18 +89,26 @@ export const Map = () => {
     }
   }, []);
 
-  console.log(chosenStation);
-
   return (
     <div>
-    <MapContainer className="mapContainer" center={[65, 90]} zoom={3} scrollWheelZoom={true}>
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
-      {loadedStations.map((station, index) => (
-        <StationMarker station={station} chooseStation={setChosenStation} key={index}/>
-      ))}
-    </ MapContainer>
+      <MapContainer className="mapContainer" center={[65, 90]} zoom={3} scrollWheelZoom={true}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+        {loadedStations.map((station, index) => (
+          <StationMarker
+            key={index}
+            station={station}
+            chooseStation={setChosenStation}
+            clickedStation={clickedStation}
+            setClickedStation={setClickedStation}
+          />
+        ))}
+      </ MapContainer>
       {chosenStation &&
-        <ChosenStationWindow station={chosenStation} setChosenStation={setChosenStation}/>}
+        <ChosenStationWindow
+          station={chosenStation}
+          setChosenStation={setChosenStation}
+          setClickedStation={setClickedStation}
+        />}
     </div>
   );
 };

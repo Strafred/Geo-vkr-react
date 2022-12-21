@@ -1,5 +1,9 @@
+import React from "react";
+import {SeismicPlot} from "./SeismicPlot";
+
 function StationInfo({station}) {
   return (
+    <div className="stationInfoBlock">
     <div className="stationInfo">
     <div className="stationInfoHeader">
       <div>
@@ -7,29 +11,36 @@ function StationInfo({station}) {
       </div>
     </div>
     <div className="stationCharacteristics">
-      <div className="stationChar"><strong>Latitude:</strong> {station.latitude}</div>
-      <div className="stationChar"><strong>Longitude:</strong> {station.longitude}</div>
-      <div className="stationChar"><strong>Elevation:</strong> {station.elevation}</div>
+      <div className="stationChar"><strong>Latitude:&nbsp;</strong>{station.latitude}</div>
+      <div className="stationChar"><strong>Longitude:&nbsp;</strong>{station.longitude}</div>
+      <div className="stationChar"><strong>Elevation:&nbsp;</strong>{station.elevation}</div>
+    </div>
     </div>
     </div>
   );
 }
 
 StationInfo.propTypes = {};
-export const ChosenStationWindow = ({station, setChosenStation}) => {
+export const ChosenStationWindow = ({station, setChosenStation, setClickedStation}) => {
   return (
     <div className="chosenStationWindow">
       <div className="stationName">
         <div>
         {station.stationName}
         </div>
-        <img className="x" onClick={() => setChosenStation(null)} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="24" height="20" alt="help icon" />
+        <img className="x" onClick={() => {
+          setChosenStation(null);
+          setClickedStation("");
+        }} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="25" height="20" alt="help icon" />
+
       </div>
       <div className="stationContent">
         <div className="network">
           {station.network}
         </div>
-        <a className="plotRef" href="https://dataview.raspberryshake.org/#/AM/RA2A6/00/EHZ">See 24-hr Plot</a>
+        {/*<a className="plotRef" href="https://dataview.raspberryshake.org/#/AM/RA2A6/00/EHZ">See 24-hr Plot</a>*/}
+        <div className="activityDescription">Last 30 minutes activity: </div>
+        <SeismicPlot stationName={station.stationName}/>
         <StationInfo station={station}/>
       </div>
     </div>);

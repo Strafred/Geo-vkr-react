@@ -1,11 +1,18 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {markerIcon, markerIconClicked, markerIconHovered} from "../constants/stationMarkers";
 import {Marker, useMap} from "react-leaflet";
 
-export const StationMarker = ({station, chooseStation}) => {
+export const StationMarker = ({station, chooseStation, clickedStation, setClickedStation}) => {
   const [mIcon, setMIcon] = useState(markerIcon);
-
+  const [isClicked, setIsClicked] = useState(false);
   const map = useMap();
+
+  useEffect(() => {
+      if (clickedStation !== station.stationName) {
+        setIsClicked(false);
+        setMIcon(markerIcon);
+      }
+    }, [clickedStation]);
 
   return (
     <Marker className="stationMarker"
@@ -14,15 +21,27 @@ export const StationMarker = ({station, chooseStation}) => {
             title={"Network: " + station.network + ", station: " + station.stationName}
             eventHandlers={{
               mouseover: () => {
-                setMIcon(markerIconHovered);
+                if (!isClicked) {
+                  setMIcon(markerIconHovered);
+                }
               },
               mouseout: () => {
-                setMIcon(markerIcon);
+                if (!isClicked) {
+                  setMIcon(markerIcon);
+                }
               },
               click: () => {
-                setMIcon(markerIconClicked);
-                chooseStation(station);
-                map.flyTo([station.latitude, station.longitude], map.getZoom());
+                if (clickedStation !== station.stationName) {
+                  setClickedStation(station.stationName);
+                  setIsClicked(true);
+                  setMIcon(markerIconClicked);
+                  chooseStation(station);
+                  // map.flyTo([station.latitude, station.longitude], map.getZoom());
+                } else {
+                  setClickedStation("");
+                  setIsClicked(false);
+                  setMIcon(markerIcon);
+                }
               }
             }}>
     </Marker>
