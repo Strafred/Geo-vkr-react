@@ -14,3 +14,7 @@
 .stationMarker:hover {
     background-color: #f00;
 }
+
+.seisplot {
+    border: 1px solid #333333;
+}

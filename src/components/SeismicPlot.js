@@ -1,6 +1,7 @@
 import Plot from "react-plotly.js";
 import {filter, miniseed} from "seisplotjs";
 import React, {useEffect, useState} from "react";
+import '../styles/Map.css'
 
 function SeisPlot(props) {
   const range = props.range;
@@ -36,7 +37,7 @@ function SeisPlot(props) {
   data[2].yaxis = 'y3';
 
   return (
-    <Plot
+    <Plot className="seisplot"
       data={data}
       layout={layout}
       config={{
