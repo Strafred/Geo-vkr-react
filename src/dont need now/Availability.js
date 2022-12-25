@@ -8,6 +8,28 @@ import Plot from '../../node_modules/react-plotly.js/react-plotly';
 import {getNetworks} from "../utils/requestUtils";
 import {compareStationsByName} from "../utils/sortStations";
 
+const merge = (intervals) => {
+  if (intervals.length < 2) return intervals;
+
+  intervals.sort((a, b) => a[0] - b[0]);
+
+  const result = [];
+  let previous = intervals[0];
+
+  for (let i = 1; i < intervals.length; i += 1) {
+    if (previous[1] >= intervals[i][0]) {
+      previous = [previous[0], Math.max(previous[1], intervals[i][1])];
+    } else {
+      result.push(previous);
+      previous = intervals[i];
+    }
+  }
+
+  result.push(previous);
+
+  return result;
+};
+
 export class Availability extends React.Component {
   constructor(props) {
     super(props);
@@ -55,6 +77,7 @@ export class Availability extends React.Component {
           const numLines = lines.length;
           let allData = [];
 
+          let allIntervals = [];
           for (let i = 1; i < numLines - 1; i++) {
             let line = lines[i];
             let availabilityString = line.split(" ")
@@ -64,18 +87,48 @@ export class Availability extends React.Component {
             from = from.replaceAll("T", " ").substring(0, from.indexOf("."));
             to = to.replaceAll("T", " ").substring(0, to.indexOf("."));
 
+            allIntervals.push([from, to]);
+          }
+
+          let mergedIntervals = merge(allIntervals);
+
+          mergedIntervals.forEach((interval) => {
             let dataPiece = {
-              x: [from, to],
+              x: [interval[0], interval[1]],
               y: [1, 1],
               fill: 'tozeroy',
               type: 'scatter',
-              line: {color: '#1f77b4'},
+              line: {color: '#496f86'},
               showlegend: false,
               hoverinfo: 'x',
+              fillcolor: '#6ea5c9',
             }
 
             allData.push(dataPiece);
-          }
+          });
+
+          // for (let i = 1; i < numLines - 1; i++) {
+            // let line = lines[i];
+            // let availabilityString = line.split(" ")
+            // let from = availabilityString[18];
+            // let to = availabilityString[20];
+            //
+            // from = from.replaceAll("T", " ").substring(0, from.indexOf("."));
+            // to = to.replaceAll("T", " ").substring(0, to.indexOf("."));
+
+            // let dataPiece = {
+            //   x: [from, to],
+            //   y: [1, 1],
+            //   fill: 'tozeroy',
+            //   type: 'scatter',
+            //   line: {color: '#496f86'},
+            //   showlegend: false,
+            //   hoverinfo: 'x',
+            //   fillcolor: '#6ea5c9',
+            // }
+            //
+            // allData.push(dataPiece);
+          // }
 
           let stationInfo = {};
           stationInfo['stationName'] = station;
@@ -107,13 +160,13 @@ export class Availability extends React.Component {
                 layout={{
                   width: 1500,
                   height: 200,
-                  yaxis: {fixedrange: true, range: [0, 1.05]},
+                  yaxis: {fixedrange: true, range: [0, 1.11]},
                   title: station.stationName,
                   margin: {
                     l: 30,
                     r: 20,
                     b: 20,
-                    t: 30,
+                    t: 40,
                     pad: 4
                   },
                   hovermode: 'x closest',
