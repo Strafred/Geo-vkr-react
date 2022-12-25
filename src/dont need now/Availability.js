@@ -110,14 +110,18 @@ export class Availability extends React.Component {
                   yaxis: {fixedrange: true, range: [0, 1.05]},
                   title: station.stationName,
                   margin: {
-                    l: 40,
-                    r: 40,
-                    b: 40,
-                    t: 40,
+                    l: 30,
+                    r: 20,
+                    b: 20,
+                    t: 30,
                     pad: 4
                   },
                   hovermode: 'x closest',
                   hoverdistance: 1000
+                }}
+                config={{
+                  modeBarButtonsToRemove: ['toImage', 'zoom2d', 'pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', "resetScale"],
+                  displaylogo: false,
                 }}
           />
         ))}
