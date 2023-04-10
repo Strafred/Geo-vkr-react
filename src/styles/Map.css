@@ -18,3 +18,8 @@
 .seisplot {
     border: 1px solid #333333;
 }
+
+#daun {
+    height: 300px;
+    width: 300px;
+}

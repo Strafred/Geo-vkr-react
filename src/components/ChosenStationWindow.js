@@ -38,7 +38,7 @@ export const ChosenStationWindow = ({station, setChosenStation, setClickedStatio
         <div className="network">
           {station.network}
         </div>
-        <div className="activityDescription">Last event (30 minutes) activity: </div>
+        <div className="activityDescription">Last event (30 minutes): </div>
         <SeismicPlot stationName={station.stationName}/>
         <a className="plotRef" href="https://dataview.raspberryshake.org/#/AM/RA2A6/00/EHZ">...see activity plots</a>
         <StationInfo station={station}/>

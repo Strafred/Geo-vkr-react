@@ -7,5 +7,5 @@ import {Availability} from "./dont need now/Availability";
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  <Availability />
+  <Map/>
 );

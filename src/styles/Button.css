@@ -11,6 +11,7 @@
     text-align: center;
     width: auto;
     padding: 0 0.5em 0 0.5em;
+    border-radius: 3px;
 }
 
 .square:hover {
@@ -18,7 +19,7 @@
 }
 
 .square:focus {
-    background: #61dafb;
+    background: #a0b8ec;
 }
 
 .buttonText {
