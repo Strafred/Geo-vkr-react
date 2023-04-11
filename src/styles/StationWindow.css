@@ -47,8 +47,7 @@
 
 .stationInfoBlock {
   margin-top: 8px;
-  border: #333333;
-  border-style: solid;
+  border: solid #333333;
 }
 
 .stationInfo {
@@ -99,11 +98,8 @@
   align-self: center;
 }
 
-.russiaFlag {
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: 0.15em;
-  margin-right: 0.5em;
+.russianFlag {
+  margin: auto 0.5em auto 0.15em;
 }
 
 .leafletRussia {

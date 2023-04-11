@@ -11,7 +11,7 @@
     z-index: 0;
 }
 
-.daun {
+.leafletCredits {
     position: absolute;
     display: flex;
     justify-content: space-between;
@@ -72,9 +72,4 @@
     100% {
         transform: rotate(360deg);
     }
-}
-
-#daun {
-    height: 300px;
-    width: 300px;
 }

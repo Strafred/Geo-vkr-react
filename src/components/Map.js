@@ -106,11 +106,12 @@ export const Map = () => {
       {chosenStation &&
         <ChosenStationWindow
           station={chosenStation}
-          setChosenStation={setChosenStation}
+          chooseStation={setChosenStation}
           setClickedStation={setClickedStation}
         />}
-      <div className="daun">
-        <img className="russiaFlag"  src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Russia.png" width="14" height="12" alt="help icon" />
+      <div className="leafletCredits">
+        <img className="russianFlag" src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Russia.png"
+             width="14" height="12" alt="help icon"/>
         <div className="leafletRussia">
           Leaflet Russia
         </div>

@@ -1,5 +1,5 @@
 import Plot from "react-plotly.js";
-import {filter, miniseed, d3, seismogram} from "seisplotjs";
+import {filter, miniseed, seismogram} from "seisplotjs";
 import React, {useEffect, useState} from "react";
 import '../styles/Map.css'
 
@@ -77,19 +77,19 @@ async function getDataFromStation(station, start, end) {
 
 export function SeismicPlot({stationName}) {
   const start = new Date();
-  // start.setHours(start.getHours() - 6);
+  // start.setHours(start.getHours() - 6); // delay?
   start.setHours(start.getHours() - 1);
   console.log(start.toISOString());
 
   const end = new Date();
-  // end.setHours(end.getHours() - 5);
+  // end.setHours(end.getHours() - 5); // delay?
   console.log(end.toISOString());
 
   const station = stationName;
 
   const [seismograms, setSeismograms] = useState([]);
-  const [yData, setYData] = useState([]);
   const [xData, setXData] = useState([]);
+  const [yData, setYData] = useState([]);
   const [showGraphics, setShowGraphics] = useState(false);
 
   useEffect(() => {
@@ -97,8 +97,6 @@ export function SeismicPlot({stationName}) {
       console.log(seismograms[0]);
 
       let seisData = seismogram.SeismogramDisplayData.fromSeismogram(seismograms[0]);
-      console.log(seisData);
-
       let ms = seisData.timeWindow._duration._milliseconds;
       let segmentFloatArrays = seismograms[0]._segmentArray.flatMap(segment => segment._y);
       const flattenedArray = []
@@ -111,9 +109,6 @@ export function SeismicPlot({stationName}) {
       let msPerStep = ms / yArrayLength;
       let xArray = [];
       let yArray = [];
-
-      // console.log(ms)
-      // console.log(seismograms[0]?.y);
 
       for (let i = 0; i < yArrayLength; i++) {
         xArray[i] = new Date(start.getTime() + msPerStep * i);
@@ -140,6 +135,7 @@ export function SeismicPlot({stationName}) {
     setXData([]);
     setYData([]);
     setShowGraphics(false);
+
     getDataFromStation(station, start, end).then(
       (seismos) => {
         setSeismograms(seismos);

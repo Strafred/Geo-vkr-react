@@ -1,18 +1,18 @@
 import React, {useEffect, useState} from "react";
 import {markerIcon, markerIconClicked, markerIconHovered} from "../constants/stationMarkers";
-import {Marker, useMap} from "react-leaflet";
+import {Marker} from "react-leaflet";
 
 export const StationMarker = ({station, chooseStation, clickedStation, setClickedStation}) => {
   const [mIcon, setMIcon] = useState(markerIcon);
   const [isClicked, setIsClicked] = useState(false);
-  const map = useMap();
+  // const map = useMap(); // for flyTo
 
   useEffect(() => {
-      if (clickedStation !== station.stationName) {
-        setIsClicked(false);
-        setMIcon(markerIcon);
-      }
-    }, [clickedStation]);
+    if (clickedStation !== station.stationName) {
+      setIsClicked(false);
+      setMIcon(markerIcon);
+    }
+  }, [clickedStation]);
 
   return (
     <Marker className="stationMarker"
@@ -21,12 +21,12 @@ export const StationMarker = ({station, chooseStation, clickedStation, setClicke
             title={"Network: " + station.network + ", station: " + station.stationName}
             eventHandlers={{
               mouseover: () => {
-                if (!isClicked) {
-                  setMIcon(markerIconHovered);
-                }
+                setMIcon(markerIconHovered);
               },
               mouseout: () => {
-                if (!isClicked) {
+                if (isClicked) {
+                  setMIcon(markerIconClicked);
+                } else {
                   setMIcon(markerIcon);
                 }
               },
@@ -36,11 +36,12 @@ export const StationMarker = ({station, chooseStation, clickedStation, setClicke
                   setIsClicked(true);
                   setMIcon(markerIconClicked);
                   chooseStation(station);
-                  // map.flyTo([station.latitude, station.longitude], map.getZoom());
+                  // map.flyTo([station.latitude, station.longitude], map.getZoom()); // buggy
                 } else {
                   setClickedStation("");
                   setIsClicked(false);
                   setMIcon(markerIcon);
+                  chooseStation(null);
                 }
               }
             }}>
