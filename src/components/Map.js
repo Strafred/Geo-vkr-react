@@ -109,6 +109,12 @@ export const Map = () => {
           setChosenStation={setChosenStation}
           setClickedStation={setClickedStation}
         />}
+      <div className="daun">
+        <img className="russiaFlag"  src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Russia.png" width="14" height="12" alt="help icon" />
+        <div className="leafletRussia">
+          Leaflet Russia
+        </div>
+      </div>
     </div>
   );
 };

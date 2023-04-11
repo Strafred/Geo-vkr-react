@@ -2,6 +2,7 @@ import React from "react";
 import {SeismicPlot} from "./SeismicPlot";
 
 function StationInfo({station}) {
+  console.log(station);
   return (
     <div className="stationInfoBlock">
     <div className="stationInfo">
@@ -38,9 +39,9 @@ export const ChosenStationWindow = ({station, setChosenStation, setClickedStatio
         <div className="network">
           {station.network}
         </div>
-        <div className="activityDescription">Last event (30 minutes): </div>
+        <div className="activityDescription">Last event (60 minutes): </div>
         <SeismicPlot stationName={station.stationName}/>
-        <a className="plotRef" href="https://dataview.raspberryshake.org/#/AM/RA2A6/00/EHZ">...see activity plots</a>
+        <a className="plotRef" href="https://dataview.raspberryshake.org/#/AM/RA2A6/00/EHZ">...see activity plot</a>
         <StationInfo station={station}/>
       </div>
     </div>);

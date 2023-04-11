@@ -10,6 +10,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "chart.js": "^4.2.1",
+    "downsample": "^1.4.0",
     "leaflet": "^1.9.2",
     "plotly.js": "^2.16.0",
     "react": "^18.2.0",

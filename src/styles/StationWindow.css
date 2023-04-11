@@ -28,7 +28,7 @@
 }
 
 .stationCharacteristics {
-  padding: 0.3em 0 0.3em 0.3em;
+  padding: 0.3em 0 0 0.3em;
   display: flex;
   flex-direction: column;
   background-color: #dde7e7;
@@ -73,6 +73,8 @@
 
 .stationContent{
   margin: 0.3em;
+  display: flex;
+  flex-direction: column;
 }
 
 .stationName {
@@ -97,6 +99,17 @@
   align-self: center;
 }
 
+.russiaFlag {
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 0.15em;
+  margin-right: 0.5em;
+}
+
+.leafletRussia {
+  padding-right: 0.5em;
+}
+
 .questionMark {
   cursor: pointer;
   margin-left: 0.15em;
@@ -106,6 +119,7 @@
 .network {
   font-size: 1.3em;
   margin-bottom: 0.3em;
+  overflow: auto;
   color: #21849a;
 }
 

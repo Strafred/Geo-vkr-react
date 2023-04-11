@@ -11,12 +11,67 @@
     z-index: 0;
 }
 
+.daun {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    bottom: 0.1%;
+    z-index: 10;
+    right: 0;
+    overflow: hidden;
+    color: #0078A8;
+    background-color: #ffffff;
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
 .stationMarker:hover {
     background-color: #f00;
 }
 
 .seisplot {
     border: 1px solid #333333;
+}
+
+.noDataWarning {
+    background-color: #e8e8e8;
+    color: red;
+    padding-left: 2.5em;
+    padding-top: 0.8em;
+    padding-bottom: 0.8em;
+    font-weight: 1000;
+    font-size: 1.7em;
+}
+
+.lds-dual-ring {
+    margin-left: 5.25em;
+    margin-bottom: 1.1em;
+    margin-top: 0.2em;
+    display: inline-block;
+    width: 44px;
+    height: 44px;
+}
+
+.lds-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 8px;
+    border-radius: 50%;
+    border: 6px solid #00487b;
+    border-color: #00487b transparent #00487b transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 #daun {
