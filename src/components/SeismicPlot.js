@@ -173,16 +173,14 @@ export function SeismicPlot({stationName, setClickedStation}) {
 
     getData()
       .then(() => {
-        console.log("пришло is: " + seismos[0].stationCode);
-        console.log("на самом деле is: " + stationRef.current);
+        // console.log("пришло is: " + seismos[0].stationCode);
+        // console.log("на самом деле is: " + stationRef.current);
 
-        if (seismos[0].stationCode === stationRef.current) {
+        if (!seismos[0]) {
+          setShowGraphics(true);
+          console.log("NETU NIHERA");
+        } else if (seismos[0].stationCode === stationRef.current) {
           setSeismograms(seismos);
-
-          if (!seismos[0]) {
-            setShowGraphics(true);
-            console.log("NETU NIHERA");
-          }
         }
       });
 
