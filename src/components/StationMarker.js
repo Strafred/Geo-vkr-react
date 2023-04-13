@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {markerIcon, markerIconClicked, markerIconHovered} from "../constants/stationMarkers";
 import {Marker} from "react-leaflet";
 
-export const StationMarker = ({station, chooseStation, clickedStation, setClickedStation}) => {
+export const StationMarker = ({station, clickedStation, setClickedStation}) => {
   const [mIcon, setMIcon] = useState(markerIcon);
   const [isClicked, setIsClicked] = useState(false);
   // const map = useMap(); // for flyTo
@@ -33,15 +33,15 @@ export const StationMarker = ({station, chooseStation, clickedStation, setClicke
               click: () => {
                 if (clickedStation !== station.stationName) {
                   setClickedStation(station.stationName);
+
                   setIsClicked(true);
                   setMIcon(markerIconClicked);
-                  chooseStation(station);
                   // map.flyTo([station.latitude, station.longitude], map.getZoom()); // buggy
                 } else {
                   setClickedStation("");
+
                   setIsClicked(false);
                   setMIcon(markerIcon);
-                  chooseStation(null);
                 }
               }
             }}>

@@ -89,6 +89,15 @@ export const Map = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (clickedStation !== "") {
+      let station = loadedStations.find(station => station.stationName === clickedStation);
+      setChosenStation(station);
+    } else {
+      setChosenStation(null);
+    }
+  }, [clickedStation]);
+
   return (
     <div>
       <MapContainer className="mapContainer" center={[65, 90]} zoom={3} scrollWheelZoom={true}>
@@ -97,7 +106,6 @@ export const Map = () => {
           <StationMarker
             key={index}
             station={station}
-            chooseStation={setChosenStation}
             clickedStation={clickedStation}
             setClickedStation={setClickedStation}
           />
@@ -106,12 +114,11 @@ export const Map = () => {
       {chosenStation &&
         <ChosenStationWindow
           station={chosenStation}
-          chooseStation={setChosenStation}
           setClickedStation={setClickedStation}
         />}
       <div className="leafletCredits">
         <img className="russianFlag" src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Russia.png"
-             width="14" height="12" alt="help icon"/>
+             width="14" height="12" alt="russian flag"/>
         <div className="leafletRussia">
           Leaflet Russia
         </div>

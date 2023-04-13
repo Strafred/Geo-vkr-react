@@ -1,6 +1,6 @@
 import Plot from "react-plotly.js";
 import {filter, miniseed, seismogram} from "seisplotjs";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import '../styles/Map.css'
 
 function SeisPlot(props) {
@@ -26,7 +26,7 @@ function SeisPlot(props) {
     },
     yaxis: {
       autorange: true,
-      fixedrange: true,
+      // fixedrange: true,
       visible: false
     },
     hovermode: 'closest',
@@ -36,24 +36,27 @@ function SeisPlot(props) {
     pad: {l: 4}
   }
 
+  let allData = [];
+  for (let i = 0; i < props.xData.length; i++) {
+    allData.push({
+      x: props.xData[i],
+      y: props.yData[i],
+      type: 'scatter',
+      line: {
+        width: 1,
+        color: '#005896',
+      },
+      showlegend: false,
+      hoverinfo: 'none',
+    })
+  }
+
   return (
     <Plot className="seisplot"
-          data={[
-            {
-              x: props.xData,
-              y: props.yData,
-              type: 'scatter',
-              line: {
-                width: 1,
-                color: '#005896',
-              },
-              showlegend: false,
-              hoverinfo: 'none',
-            }
-          ]}
+          data={allData}
           layout={layout}
           config={{
-            modeBarButtonsToRemove: ['toImage', 'zoom2d', 'pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', "resetScale"],
+            modeBarButtonsToRemove: ['toImage', 'zoom2d', 'pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d'],
             displaylogo: false,
           }}
     />
@@ -75,22 +78,21 @@ async function getDataFromStation(station, start, end) {
   return seismograms;
 }
 
-export function SeismicPlot({stationName}) {
-  const start = new Date();
+export function SeismicPlot({stationName, setClickedStation}) {
+  const start = new Date('2022-11-24T06:00:00.000Z');
   // start.setHours(start.getHours() - 6); // delay?
-  start.setHours(start.getHours() - 1);
+  // start.setHours(start.getHours() - 1);
   console.log(start.toISOString());
 
-  const end = new Date();
+  const end = new Date('2022-11-24T06:30:00.000Z');
   // end.setHours(end.getHours() - 5); // delay?
   console.log(end.toISOString());
-
-  const station = stationName;
 
   const [seismograms, setSeismograms] = useState([]);
   const [xData, setXData] = useState([]);
   const [yData, setYData] = useState([]);
   const [showGraphics, setShowGraphics] = useState(false);
+  let stationRef = useRef(stationName);
 
   useEffect(() => {
     if (seismograms[0]) {
@@ -98,57 +100,98 @@ export function SeismicPlot({stationName}) {
 
       let seisData = seismogram.SeismogramDisplayData.fromSeismogram(seismograms[0]);
       let ms = seisData.timeWindow._duration._milliseconds;
-      let segmentFloatArrays = seismograms[0]._segmentArray.flatMap(segment => segment._y);
+
+      let segmentsFloatArrays = seismograms[0]._segmentArray.flatMap(segment => segment._y);
       const flattenedArray = []
-        .concat(...segmentFloatArrays
+        .concat(...segmentsFloatArrays
           .map(segmentFloatArray => Array.from(segmentFloatArray)));
 
       console.log(flattenedArray);
 
       let yArrayLength = flattenedArray.length;
       let msPerStep = ms / yArrayLength;
-      let xArray = [];
-      let yArray = [];
 
-      for (let i = 0; i < yArrayLength; i++) {
-        xArray[i] = new Date(start.getTime() + msPerStep * i);
-        yArray[i] = flattenedArray[i];
+      let xDatesArrays = [];
+      let stepNumber = 0;
+
+      let ySegmentsArray = segmentsFloatArrays.map(floatSegment => {
+        let xDatesArray = [];
+        for (let i = 0; i < floatSegment.length; i++) {
+          xDatesArray[i] = new Date(start.getTime() + msPerStep * stepNumber);
+          stepNumber++;
+        }
+        xDatesArrays.push(xDatesArray);
+
+        return Array.from(floatSegment);
+      });
+
+      let xArray = xDatesArrays;
+      let yArray = ySegmentsArray;
+
+      // for (let i = 0; i < yArrayLength; i++) {
+      //   xArray[i] = new Date(start.getTime() + msPerStep * i);
+      //   yArray[i] = flattenedArray[i];
+      // }
+
+      const percentToRemove = 3;
+
+      if (xArray.length === 1) {
+        const numToRemove = Math.round((percentToRemove / 100) * xArray[0].length);
+        xArray[0].splice(0, numToRemove);
+        yArray[0].splice(0, numToRemove);
+      } else {
+        const numToRemove = Math.round((percentToRemove / 100) * xArray.length);
+        xArray.splice(0, numToRemove);
+        yArray.splice(0, numToRemove);
       }
 
-      const percentToRemove = 1;
-      const numToRemove = Math.round((percentToRemove / 100) * xArray.length);
-      console.log(numToRemove);
-      xArray.splice(0, numToRemove);
-      yArray.splice(0, numToRemove);
+      console.log(xArray);
+      console.log(yArray);
 
       setXData(xArray);
       setYData(yArray);
       setShowGraphics(true);
-
-      console.log(xArray);
-      console.log(yArray);
     }
   }, [seismograms]);
 
   useEffect(() => {
+    setClickedStation(stationName);
+    stationRef.current = stationName;
     setSeismograms([]);
     setXData([]);
     setYData([]);
     setShowGraphics(false);
 
-    getDataFromStation(station, start, end).then(
-      (seismos) => {
-        setSeismograms(seismos);
-        if (!seismos[0]) {
-          setShowGraphics(true);
+    console.log(stationName);
+    console.log("DAUN");
+
+    let seismos = [];
+
+    const getData = async () => {
+      seismos = await getDataFromStation(stationName, start, end);
+    };
+
+    getData()
+      .then(() => {
+        console.log("пришло is: " + seismos[0].stationCode);
+        console.log("на самом деле is: " + stationRef.current);
+
+        if (seismos[0].stationCode === stationRef.current) {
+          setSeismograms(seismos);
+
+          if (!seismos[0]) {
+            setShowGraphics(true);
+            console.log("NETU NIHERA");
+          }
         }
-      }
-    );
-  }, [station]);
+      });
+
+  }, [stationName]);
 
   // console.log(seismograms);
-  console.log(xData);
-  console.log(yData);
+  console.log(stationName);
+  // console.log(xData);
+  // console.log(yData);
 
   return showGraphics ? <SeisPlot range={[start, end]} xData={xData} yData={yData} seis={seismograms}/> :
     <div className="lds-dual-ring">

@@ -22,7 +22,7 @@ function StationInfo({station}) {
 }
 
 StationInfo.propTypes = {};
-export const ChosenStationWindow = ({station, chooseStation, setClickedStation}) => {
+export const ChosenStationWindow = ({station, setClickedStation}) => {
   return (
     <div className="chosenStationWindow">
       <div className="stationName">
@@ -30,7 +30,6 @@ export const ChosenStationWindow = ({station, chooseStation, setClickedStation})
           {station.stationName}
         </div>
         <img className="x" onClick={() => {
-          chooseStation(null);
           setClickedStation("");
         }} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="25" height="20" alt="close station window"/>
 
@@ -39,9 +38,9 @@ export const ChosenStationWindow = ({station, chooseStation, setClickedStation})
         <div className="network">
           {station.network}
         </div>
-        <div className="activityDescription">Last event (60 minutes):</div>
-        <SeismicPlot stationName={station.stationName}/>
-        <a className="plotRef" href="https://dataview.raspberryshake.org/#/AM/RA2A6/00/EHZ">...see activity plot</a>
+        <div className="activityDescription">Last event (30 minutes):</div>
+        <SeismicPlot stationName={station.stationName} setClickedStation={setClickedStation}/>
+        <a className="plotRef" href="https://dataview.raspberryshake.org/#/AM/RA2A6/00/EHZ">...see activity plots</a>
         <StationInfo station={station}/>
       </div>
     </div>);
