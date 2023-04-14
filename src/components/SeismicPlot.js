@@ -16,7 +16,7 @@ function SeisPlot(props) {
 
   const layout = {
     xaxis: {
-      autorange: true,
+      range: [props.range[0], props.range[1]],
       tickangle: 0,
       tickfont: {
         family: 'Arial, sans-serif',
@@ -33,7 +33,7 @@ function SeisPlot(props) {
     width: 190,
     height: 60,
     margin: {l: 0, r: 0, b: 12.5, t: 3},
-    pad: {l: 4}
+    pad: {l: 4},
   }
 
   let allData = [];
@@ -43,7 +43,7 @@ function SeisPlot(props) {
       y: props.yData[i],
       type: 'scatter',
       line: {
-        width: 1,
+        width: 0.75,
         color: '#005896',
       },
       showlegend: false,
@@ -93,6 +93,7 @@ export function SeismicPlot({stationName, setClickedStation}) {
   const [yData, setYData] = useState([]);
   const [showGraphics, setShowGraphics] = useState(false);
   let stationRef = useRef(stationName);
+  let showingStart = useRef(start);
 
   useEffect(() => {
     if (seismograms[0]) {
@@ -133,16 +134,21 @@ export function SeismicPlot({stationName, setClickedStation}) {
       //   yArray[i] = flattenedArray[i];
       // }
 
-      const percentToRemove = 3;
+      const percentToRemove = 2;
 
-      if (xArray.length === 1) {
-        const numToRemove = Math.round((percentToRemove / 100) * xArray[0].length);
+      if (xArray.length <= 100) {
+        const numToRemove = Math.round(xArray[0].length / (1 / xArray.length * 100 / percentToRemove))
+        // const numToRemove = Math.round((percentToRemove / 100) * xArray[0].length);
         xArray[0].splice(0, numToRemove);
         yArray[0].splice(0, numToRemove);
+        showingStart.current = xArray[0][numToRemove];
+        console.log("showing start is: " + showingStart);
       } else {
         const numToRemove = Math.round((percentToRemove / 100) * xArray.length);
         xArray.splice(0, numToRemove);
         yArray.splice(0, numToRemove);
+        showingStart.current = xArray[numToRemove][0];
+        console.log("showing start is: " + showingStart);
       }
 
       console.log(xArray);
@@ -188,10 +194,11 @@ export function SeismicPlot({stationName, setClickedStation}) {
 
   // console.log(seismograms);
   console.log(stationName);
+  console.log("showing start is: " + showingStart);
   // console.log(xData);
   // console.log(yData);
 
-  return showGraphics ? <SeisPlot range={[start, end]} xData={xData} yData={yData} seis={seismograms}/> :
+  return showGraphics ? <SeisPlot range={[showingStart.current, end]} xData={xData} yData={yData} seis={seismograms}/> :
     <div className="lds-dual-ring">
     </div>
 }
