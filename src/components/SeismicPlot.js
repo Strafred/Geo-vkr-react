@@ -4,37 +4,94 @@ import React, {useEffect, useRef, useState} from "react";
 import '../styles/Map.css'
 
 function SeisPlot(props) {
-  if (props.xData.length === 0 || props.yData.length === 0) {
-    return <div className="noDataWarning">NO DATA
-    </div>
-  }
-
-  console.log(props.xData.length);
-  console.log(props.yData.length);
-  console.log(props.range[0]);
-  console.log(props.range[1]);
-
-  const layout = {
+  const originalRange = props.range;
+  const [range, setRange] = useState(props.range);
+  const [layout, setLayout] = useState({
     xaxis: {
-      range: [props.range[0], props.range[1]],
+      range: [range[0], range[1]],
       tickangle: 0,
       tickfont: {
         family: 'Arial, sans-serif',
         size: 9,
-        color: '#000000',
+        color: '#005896',
       },
+      constrain: 'domain',
     },
     yaxis: {
       autorange: true,
-      // fixedrange: true,
       visible: false
     },
     hovermode: 'closest',
     width: 190,
     height: 60,
-    margin: {l: 0, r: 0, b: 12.5, t: 3},
+    margin: {l: 0, r: 0, b: 11, t: 0},
     pad: {l: 4},
+  });
+
+  const handleLayoutChange = (data) => {
+    let newRange = [data['xaxis.range[0]'], data['xaxis.range[1]']];
+    let newDateRange = [new Date(newRange[0]), new Date(newRange[1])];
+    if (newDateRange[1] <= originalRange[1] && newDateRange[0] >= originalRange[0]) {
+      setRange(newDateRange);
+    } else {
+      let diffMilliseconds = newDateRange[1] - newDateRange[0];
+      if (diffMilliseconds > (originalRange[1] - originalRange[0])) {
+        setRange([...originalRange]);
+        setLayout({
+          ...layout,
+          xaxis: {
+            ...layout.xaxis,
+            range: [...originalRange],
+          }
+        });
+        return;
+      }
+
+      if (newDateRange[0] < originalRange[0]) {
+        let newRangeEnd = new Date(originalRange[0]);
+        newRangeEnd.setMilliseconds(newRangeEnd.getMilliseconds() + diffMilliseconds);
+
+        setRange([originalRange[0], newRangeEnd]);
+        setLayout({
+          ...layout,
+          xaxis: {
+            ...layout.xaxis,
+            range: [originalRange[0], newRangeEnd],
+          }
+        });
+      } else if (newDateRange[1] > originalRange[1]) {
+        let newRangeStart = new Date(originalRange[1]);
+        newRangeStart.setMilliseconds(newRangeStart.getMilliseconds() - diffMilliseconds);
+
+        setRange([newRangeStart, originalRange[1]]);
+        setLayout({
+          ...layout,
+          xaxis: {
+            ...layout.xaxis,
+            range: [newRangeStart, originalRange[1]],
+          }
+        });
+      } else {
+        setLayout({
+          ...layout,
+          xaxis: {
+            ...layout.xaxis,
+            range: [...range],
+          }
+        });
+      }
+    }
+  };
+
+  if (props.xData.length === 0 || props.yData.length === 0) {
+    return <div className="noDataWarning">NO DATA
+    </div>
   }
+
+  // console.log(props.xData.length);
+  // console.log(props.yData.length);
+  // console.log(props.range[0]);
+  // console.log(props.range[1]);
 
   let allData = [];
   for (let i = 0; i < props.xData.length; i++) {
@@ -59,6 +116,7 @@ function SeisPlot(props) {
             modeBarButtonsToRemove: ['toImage', 'zoom2d', 'pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d'],
             displaylogo: false,
           }}
+          onRelayout={handleLayoutChange}
     />
   )
 }
@@ -93,7 +151,6 @@ export function SeismicPlot({stationName, setClickedStation}) {
   const [yData, setYData] = useState([]);
   const [showGraphics, setShowGraphics] = useState(false);
   let stationRef = useRef(stationName);
-  let showingStart = useRef(start);
 
   useEffect(() => {
     if (seismograms[0]) {
@@ -141,14 +198,10 @@ export function SeismicPlot({stationName, setClickedStation}) {
         // const numToRemove = Math.round((percentToRemove / 100) * xArray[0].length);
         xArray[0].splice(0, numToRemove);
         yArray[0].splice(0, numToRemove);
-        showingStart.current = xArray[0][numToRemove];
-        console.log("showing start is: " + showingStart);
       } else {
         const numToRemove = Math.round((percentToRemove / 100) * xArray.length);
         xArray.splice(0, numToRemove);
         yArray.splice(0, numToRemove);
-        showingStart.current = xArray[numToRemove][0];
-        console.log("showing start is: " + showingStart);
       }
 
       console.log(xArray);
@@ -192,13 +245,12 @@ export function SeismicPlot({stationName, setClickedStation}) {
 
   }, [stationName]);
 
-  // console.log(seismograms);
+  console.log(seismograms);
   console.log(stationName);
-  console.log("showing start is: " + showingStart);
   // console.log(xData);
   // console.log(yData);
 
-  return showGraphics ? <SeisPlot range={[showingStart.current, end]} xData={xData} yData={yData} seis={seismograms}/> :
+  return showGraphics ? <SeisPlot range={[xData[0][0], end]} xData={xData} yData={yData} seis={seismograms}/> :
     <div className="lds-dual-ring">
     </div>
 }

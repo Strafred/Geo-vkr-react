@@ -40,7 +40,7 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
         </div>
         <div className="activityDescription">Last event (30 minutes):</div>
         <SeismicPlot stationName={station.stationName} setClickedStation={setClickedStation}/>
-        <a className="plotRef" href="https://dataview.raspberryshake.org/#/AM/RA2A6/00/EHZ">...see activity plots</a>
+        <a className="plotRef">...see activity plots</a>
         <StationInfo station={station}/>
       </div>
     </div>);
