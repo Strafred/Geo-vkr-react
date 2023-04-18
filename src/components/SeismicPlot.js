@@ -2,6 +2,7 @@ import Plot from "react-plotly.js";
 import {filter, miniseed, seismogram} from "seisplotjs";
 import React, {useEffect, useRef, useState} from "react";
 import '../styles/Map.css'
+import {downsamplePlotDataSegment} from "../utils/dataUtils";
 
 function SeisPlot(props) {
   const originalRange = props.range;
@@ -18,6 +19,7 @@ function SeisPlot(props) {
       constrain: 'domain',
     },
     yaxis: {
+      fixedrange: true,
       autorange: true,
       visible: false
     },
@@ -101,23 +103,28 @@ function SeisPlot(props) {
       type: 'scatter',
       line: {
         width: 0.75,
-        color: '#005896',
+        color: props.color,
       },
       showlegend: false,
       hoverinfo: 'none',
     })
   }
 
+  const channel = props.name ? <div>{props.name} channel:</div> : <div/>;
+
   return (
-    <Plot className="seisplot"
-          data={allData}
-          layout={layout}
-          config={{
-            modeBarButtonsToRemove: ['toImage', 'zoom2d', 'pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d'],
-            displaylogo: false,
-          }}
-          onRelayout={handleLayoutChange}
-    />
+    <>
+      {channel}
+      <Plot className="seisplot"
+            data={allData}
+            layout={layout}
+            config={{
+              modeBarButtonsToRemove: ['toImage', 'zoom2d', 'pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d'],
+              displaylogo: false,
+            }}
+            onRelayout={handleLayoutChange}
+      />
+    </>
   )
 }
 
@@ -137,79 +144,88 @@ async function getDataFromStation(station, start, end) {
 }
 
 export function SeismicPlot({stationName, setClickedStation}) {
-  const start = new Date('2022-11-24T06:00:00.000Z');
-  // start.setHours(start.getHours() - 6); // delay?
-  // start.setHours(start.getHours() - 1);
-  console.log(start.toISOString());
-
-  const end = new Date('2022-11-24T06:30:00.000Z');
-  // end.setHours(end.getHours() - 5); // delay?
-  console.log(end.toISOString());
+  const start = new Date();
+  const end = new Date(start);
+  start.setHours(start.getHours() - 6);
+  start.setMinutes(start.getMinutes() - 30);
+  end.setHours(end.getHours() - 6);
 
   const [seismograms, setSeismograms] = useState([]);
-  const [xData, setXData] = useState([]);
-  const [yData, setYData] = useState([]);
+
+  const [xFirstData, setXFirstData] = useState([]);
+  const [yFirstData, setYFirstData] = useState([]);
+  const [xSecondData, setXSecondData] = useState([]);
+  const [ySecondData, setYSecondData] = useState([]);
+  const [xThirdData, setXThirdData] = useState([]);
+  const [yThirdData, setYThirdData] = useState([]);
+
   const [showGraphics, setShowGraphics] = useState(false);
   let stationRef = useRef(stationName);
 
-  useEffect(() => {
-    if (seismograms[0]) {
-      console.log(seismograms[0]);
+  const initChannelData = async (seismo, setXData, setYData) => {
+    let seismoData = seismogram.SeismogramDisplayData.fromSeismogram(seismo);
+    let ms = seismoData.timeWindow._duration._milliseconds;
 
-      let seisData = seismogram.SeismogramDisplayData.fromSeismogram(seismograms[0]);
-      let ms = seisData.timeWindow._duration._milliseconds;
+    let segmentsArray = seismo._segmentArray.flatMap(segment => segment._y);
+    let yArrayLength = segmentsArray.reduce((totalLength, segment) => totalLength + segment.length, 0);
 
-      let segmentsFloatArrays = seismograms[0]._segmentArray.flatMap(segment => segment._y);
-      const flattenedArray = []
-        .concat(...segmentsFloatArrays
-          .map(segmentFloatArray => Array.from(segmentFloatArray)));
+    let msPerStep = ms / yArrayLength;
 
-      console.log(flattenedArray);
+    let xDatesArrays = [];
+    let stepNumber = 0;
 
-      let yArrayLength = flattenedArray.length;
-      let msPerStep = ms / yArrayLength;
-
-      let xDatesArrays = [];
-      let stepNumber = 0;
-
-      let ySegmentsArray = segmentsFloatArrays.map(floatSegment => {
-        let xDatesArray = [];
-        for (let i = 0; i < floatSegment.length; i++) {
-          xDatesArray[i] = new Date(start.getTime() + msPerStep * stepNumber);
-          stepNumber++;
-        }
-        xDatesArrays.push(xDatesArray);
-
-        return Array.from(floatSegment);
-      });
-
-      let xArray = xDatesArrays;
-      let yArray = ySegmentsArray;
-
-      // for (let i = 0; i < yArrayLength; i++) {
-      //   xArray[i] = new Date(start.getTime() + msPerStep * i);
-      //   yArray[i] = flattenedArray[i];
-      // }
-
-      const percentToRemove = 2;
-
-      if (xArray.length <= 100) {
-        const numToRemove = Math.round(xArray[0].length / (1 / xArray.length * 100 / percentToRemove))
-        // const numToRemove = Math.round((percentToRemove / 100) * xArray[0].length);
-        xArray[0].splice(0, numToRemove);
-        yArray[0].splice(0, numToRemove);
-      } else {
-        const numToRemove = Math.round((percentToRemove / 100) * xArray.length);
-        xArray.splice(0, numToRemove);
-        yArray.splice(0, numToRemove);
+    let yValuesArrays = segmentsArray.map(ySegment => {
+      let xDatesArray = [];
+      for (let i = 0; i < ySegment.length; i++) {
+        xDatesArray[i] = new Date(start.getTime() + msPerStep * stepNumber);
+        stepNumber++;
       }
 
-      console.log(xArray);
-      console.log(yArray);
+      const pairsArray = xDatesArray.map((x, index) => [x, ySegment[index]]);
+      const downsampledPairsArray = downsamplePlotDataSegment(pairsArray);
 
-      setXData(xArray);
-      setYData(yArray);
-      setShowGraphics(true);
+      const xPoints = downsampledPairsArray.map(pair => pair[0]);
+      const yPoints = downsampledPairsArray.map(pair => pair[1]);
+
+      xDatesArrays.push(xPoints);
+      return yPoints;
+    });
+
+    let xArray = xDatesArrays;
+    let yArray = yValuesArrays;
+
+    const percentToRemove = 3;
+
+    if (xArray.length <= 100) {
+      const numToRemove = Math.round(xArray[0].length / (1 / xArray.length * 100 / percentToRemove))
+      xArray[0].splice(0, numToRemove);
+      yArray[0].splice(0, numToRemove);
+    } else {
+      const numToRemove = Math.round((percentToRemove / 100) * xArray.length);
+      xArray.splice(0, numToRemove);
+      yArray.splice(0, numToRemove);
+    }
+
+    console.log(xArray);
+    console.log(yArray);
+
+    setXData(xArray);
+    setYData(yArray);
+    setShowGraphics(true);
+  };
+
+  useEffect(() => {
+    if (seismograms[0]) {
+      initChannelData(seismograms[0], setXFirstData, setYFirstData)
+        .catch(error => console.log(error));
+    }
+    if (seismograms[1]) {
+      initChannelData(seismograms[1], setXSecondData, setYSecondData)
+        .catch(error => console.log(error));
+    }
+    if (seismograms[2]) {
+      initChannelData(seismograms[2], setXThirdData, setYThirdData)
+        .catch(error => console.log(error));
     }
   }, [seismograms]);
 
@@ -217,12 +233,13 @@ export function SeismicPlot({stationName, setClickedStation}) {
     setClickedStation(stationName);
     stationRef.current = stationName;
     setSeismograms([]);
-    setXData([]);
-    setYData([]);
+    setXFirstData([]);
+    setYFirstData([]);
+    setXSecondData([]);
+    setYSecondData([]);
+    setXThirdData([]);
+    setYThirdData([]);
     setShowGraphics(false);
-
-    console.log(stationName);
-    console.log("DAUN");
 
     let seismos = [];
 
@@ -232,25 +249,32 @@ export function SeismicPlot({stationName, setClickedStation}) {
 
     getData()
       .then(() => {
-        // console.log("пришло is: " + seismos[0].stationCode);
-        // console.log("на самом деле is: " + stationRef.current);
-
-        if (!seismos[0]) {
+        if (seismos.length === 0) {
           setShowGraphics(true);
-          console.log("NETU NIHERA");
-        } else if (seismos[0].stationCode === stationRef.current) {
+        } else if (seismos.filter(seismo => seismo.stationCode !== stationRef.current).length > 0) {
+          setShowGraphics(false);
+        } else {
           setSeismograms(seismos);
         }
       });
-
   }, [stationName]);
 
   console.log(seismograms);
-  console.log(stationName);
-  // console.log(xData);
-  // console.log(yData);
+  console.log(xFirstData);
+  console.log(yFirstData);
 
-  return showGraphics ? <SeisPlot range={[xData[0][0], end]} xData={xData} yData={yData} seis={seismograms}/> :
+  return showGraphics ? <><SeisPlot name={seismograms[0] ? seismograms[0]._segmentArray[0].channelCode : ""}
+                                    color={"#da3232"}
+                                    range={xFirstData.length > 0 ? [xFirstData[0][0], xFirstData[xFirstData.length - 1][xFirstData[xFirstData.length - 1].length - 1]] : [start, end]}
+                                    xData={xFirstData} yData={yFirstData}/>
+      <SeisPlot name={seismograms[1] ? seismograms[1]._segmentArray[0].channelCode : ""}
+                color={"#00ff00"}
+                range={xSecondData.length > 0 ? [xSecondData[0][0], xSecondData[xSecondData.length - 1][xSecondData[xSecondData.length - 1].length - 1]] : [start, end]}
+                xData={xSecondData} yData={ySecondData}/>
+      <SeisPlot name={seismograms[2] ? seismograms[2]._segmentArray[0].channelCode : ""}
+                color={"#005896"}
+                range={xThirdData.length > 0 ? [xThirdData[0][0], xThirdData[xThirdData.length - 1][xThirdData[xThirdData.length - 1].length - 1]] : [start, end]}
+                xData={xThirdData} yData={yThirdData}/></> :
     <div className="lds-dual-ring">
     </div>
 }

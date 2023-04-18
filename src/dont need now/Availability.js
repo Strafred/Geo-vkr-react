@@ -83,7 +83,7 @@ export class Availability extends React.Component {
             allIntervals.push([from, to]);
           }
 
-          let mergedIntervals = allIntervals;
+          let mergedIntervals = merge(allIntervals);
 
           mergedIntervals.forEach((interval) => {
             let dataPiece = {
