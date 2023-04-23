@@ -163,6 +163,9 @@ export function SeismicPlot({stationName, setClickedStation}) {
   let stationRef = useRef(stationName);
 
   const initChannelData = async (seismo, setXData, setYData) => {
+    let startingInitDate = new Date();
+    console.log(startingInitDate);
+
     let seismoData = seismogram.SeismogramDisplayData.fromSeismogram(seismo);
     let ms = seismoData.timeWindow._duration._milliseconds;
 
@@ -206,8 +209,11 @@ export function SeismicPlot({stationName, setClickedStation}) {
       yArray.splice(0, numToRemove);
     }
 
-    console.log(xArray);
-    console.log(yArray);
+    // console.log(xArray);
+    // console.log(yArray);
+
+    let endingInitDate = new Date();
+    console.log(endingInitDate);
 
     setXData(xArray);
     setYData(yArray);
@@ -259,9 +265,9 @@ export function SeismicPlot({stationName, setClickedStation}) {
       });
   }, [stationName]);
 
-  console.log(seismograms);
-  console.log(xFirstData);
-  console.log(yFirstData);
+  // console.log(seismograms);
+  // console.log(xFirstData);
+  // console.log(yFirstData);
 
   return showGraphics ? <><SeisPlot name={seismograms[0] ? seismograms[0]._segmentArray[0].channelCode : ""}
                                     color={"#da3232"}
