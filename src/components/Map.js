@@ -7,6 +7,7 @@ import './NetworkButton';
 import {getNetworks} from "../utils/requestUtils";
 import {StationMarker} from "./StationMarker";
 import {ChosenStationWindow} from "./ChosenStationWindow";
+import {StationActivity} from "./StationActivity";
 
 export const Map = () => {
   const [loadedStations, setLoadedStations] = useState([]);
@@ -112,10 +113,16 @@ export const Map = () => {
         ))}
       </ MapContainer>
       {chosenStation &&
-        <ChosenStationWindow
-          station={chosenStation}
-          setClickedStation={setClickedStation}
-        />}
+        <>
+          <ChosenStationWindow
+            station={chosenStation}
+            setClickedStation={setClickedStation}
+          />
+          <StationActivity
+            station={chosenStation}
+            setClickedStation={setClickedStation}
+          />
+        </>}
       <div className="leafletCredits">
         <img className="russianFlag" src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Russia.png"
              width="14" height="12" alt="russian flag"/>

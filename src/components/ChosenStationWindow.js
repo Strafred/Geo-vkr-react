@@ -23,25 +23,31 @@ function StationInfo({station}) {
 
 StationInfo.propTypes = {};
 export const ChosenStationWindow = ({station, setClickedStation}) => {
+  const start = new Date();
+  const end = new Date(start);
+  start.setHours(start.getHours() - 6);
+  start.setMinutes(start.getMinutes() - 30);
+  end.setHours(end.getHours() - 6);
+
   return (
     <div className="chosenStationWindow">
       <div className="stationName">
-        <div>
+        <div style={{marginLeft: 50}}>
           {station.stationName}
         </div>
         <img className="x" onClick={() => {
           setClickedStation("");
-        }} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="25" height="20" alt="close station window"/>
-
+        }} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="25" height="20"
+             alt="close station window"/>
       </div>
       <div className="stationContent">
-        <div className="network">
+        <div className="stationNetwork">
           {station.network}
         </div>
-        <div className="activityDescription">Last event (30 minutes):</div>
+        <div className="activityDescription">Last event<br></br>{start.toLocaleString()} - <br></br>{end.toLocaleString()}:</div>
         <SeismicPlot stationName={station.stationName} setClickedStation={setClickedStation}/>
-        <a className="plotRef">...see activity plots</a>
+        {/*<a className="plotRef">...see activity plots</a>*/}
         <StationInfo station={station}/>
       </div>
     </div>);
-};
+}
