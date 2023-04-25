@@ -110,7 +110,7 @@ export const Availability = ({station}) => {
         <Plot data={stationsData}
               layout={{
                 width: 280,
-                height: 200,
+                height: 130,
                 xaxis: {
                   tickfont: {
                     family: 'Arial, sans-serif',
@@ -124,7 +124,7 @@ export const Availability = ({station}) => {
                   l: 30,
                   r: 0,
                   b: 20,
-                  t: 0,
+                  t: 10,
                   pad: 4,
                 },
                 hovermode: 'x closest',
