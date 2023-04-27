@@ -37,7 +37,7 @@
 .noDataWarning {
     background-color: #e8e8e8;
     color: red;
-    padding-left: 2.5em;
+    text-align: center;
     padding-top: 0.8em;
     padding-bottom: 0.8em;
     font-weight: 1000;

@@ -7,7 +7,6 @@ import Plot from '../../node_modules/react-plotly.js/react-plotly';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { formatNumber } from "../utils/formatUtils";
-import DatePicker from "react-datepicker";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -29,18 +28,31 @@ function merge(intervals) {
   return res;
 }
 
-export const Availability = ({station}) => {
+export const Availability = ({station, start, end}) => {
   const [stationsData, setStationsData] = useState([]);
+  const [isDataAvailable, setIsDataAvailable] = useState(true);
   const [workingPercent, setWorkingPercent] = useState(null);
+  const [range, setRange] = useState([]);
   let stationRef = useRef(station);
 
   useEffect(() => {
     console.log(station);
     stationRef.current = station;
 
+    setStationsData([]);
     let stationsData = [];
-    const getAvailabilityURL = 'http://84.237.89.72:8080/fdsnws/availability/1/query?starttime=2021-10-01T00%3A00%3A00&endtime=2021-10-31T00%3A00%3A00&station=' + station;
 
+    let getAvailabilityURL;
+    if (!start || !end) {
+      getAvailabilityURL = `http://84.237.89.72:8080/fdsnws/availability/1/query?starttime=2022-10-01T00%3A00%3A00&endtime=2022-10-31T00%3A00%3A00&station=${station}`;
+    } else {
+      let startSegment = start.toLocaleDateString().split(".");
+      console.log(startSegment);
+      let endSegment = end.toLocaleDateString().split(".");
+      console.log(endSegment);
+      getAvailabilityURL = `http://84.237.89.72:8080/fdsnws/availability/1/query?starttime=${startSegment[2]}-${startSegment[1]}-${startSegment[0]}T00%3A00%3A00&endtime=${endSegment[2]}-${endSegment[1]}-${endSegment[0]}T00%3A00%3A00&station=${station}`;
+    }
+    console.log(getAvailabilityURL);
     fetch(getAvailabilityURL)
       .then(response => response.text())
       .then(data => {
@@ -61,13 +73,29 @@ export const Availability = ({station}) => {
           allIntervals.push(fromToInterval);
         }
 
+        if (allIntervals.length === 0) {
+          setStationsData([]);
+          setIsDataAvailable(false);
+          return;
+        }
+        setIsDataAvailable(true);
+
         console.log(allIntervals);
         let mergedIntervals = merge(allIntervals);
+
         let workingTime = mergedIntervals.reduce((acc, interval) => {
+          console.log(interval);
           acc += (new Date(interval[1]) - new Date(interval[0])) / 1000;
           return acc;
         }, 0);
-        let totalTime = (new Date(mergedIntervals[mergedIntervals.length - 1][1]) - new Date(mergedIntervals[0][0])) / 1000;
+        let totalTime;
+        if (start && end && ((new Date(mergedIntervals[mergedIntervals.length - 1][1]) - new Date(mergedIntervals[0][0])) < (new Date(end) - new Date(start)))) {
+          setRange([start, end]);
+          totalTime = (new Date(end) - new Date(start)) / 1000;
+        } else {
+          setRange([mergedIntervals[0][0], mergedIntervals[mergedIntervals.length - 1][1]]);
+          totalTime = (new Date(mergedIntervals[mergedIntervals.length - 1][1]) - new Date(mergedIntervals[0][0])) / 1000;
+        }
         setWorkingPercent(workingTime / totalTime);
 
         mergedIntervals.forEach((interval) => {
@@ -95,7 +123,14 @@ export const Availability = ({station}) => {
 
         setStationsData(allData);
       });
-  }, [station]);
+  }, [station, start, end]);
+
+  if (!isDataAvailable) {
+    return (
+      <div className="noDataWarning">NO DATA
+      </div>
+    )
+  }
 
   if (station !== stationRef.current || stationsData.length === 0) {
     return (
@@ -118,6 +153,7 @@ export const Availability = ({station}) => {
                     color: '#333',
                   },
                   constrain: 'domain',
+                  range: range,
                 },
                 yaxis: {fixedrange: true, range: [0, 1.1]},
                 margin: {
@@ -161,15 +197,15 @@ export const Availability = ({station}) => {
       }} plugins={[
         {
           id: "textCenter",
-          beforeDatasetsDraw(chart) {
-            const {ctx} = chart;
+          afterDatasetsDraw(chart) {
+            const {ctx, data} = chart;
             const meta = chart.getDatasetMeta(0);
 
-            ctx.font = "bold 40px sans-serif";
+            ctx.font = "bold 35px sans-serif";
             ctx.fillStyle = "#333"
             ctx.textAlign = "center";
 
-            ctx.fillText(`${formatNumber(workingPercent)}%`, meta.data[0].x, meta.data[0].y);
+            ctx.fillText(`${formatNumber(data.datasets[0].data[0]) * 100}%`, meta.data[0].x, meta.data[0].y);
           }
         }
       ]}/>

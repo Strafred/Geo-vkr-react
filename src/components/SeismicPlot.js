@@ -270,7 +270,7 @@ export function SeismicPlot({stationName, setClickedStation}) {
   // console.log(yFirstData);
 
   return showGraphics ? <><SeisPlot name={seismograms[0] ? seismograms[0]._segmentArray[0].channelCode : ""}
-                                    color={"#da3232"}
+                                    color={"#fd5050"}
                                     range={xFirstData.length > 0 ? [xFirstData[0][0], xFirstData[xFirstData.length - 1][xFirstData[xFirstData.length - 1].length - 1]] : [start, end]}
                                     xData={xFirstData} yData={yFirstData}/>
       <SeisPlot name={seismograms[1] ? seismograms[1]._segmentArray[0].channelCode : ""}
