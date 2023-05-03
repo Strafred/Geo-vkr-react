@@ -1,5 +1,5 @@
 import React from "react";
-import {Availability} from "../dont need now/Availability";
+import {Availability} from "./Availability";
 import 'react-day-picker/dist/style.css';
 import {DayPicker} from "react-day-picker";
 import '../styles/StationWindow.css';

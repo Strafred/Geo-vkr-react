@@ -44,7 +44,8 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
         <div className="stationNetwork">
           {station.network}
         </div>
-        <div className="activityDescription">Last event<br></br>{start.toLocaleString()} - <br></br>{end.toLocaleString()}:</div>
+        {/*<div className="activityDescription">Last event<br></br>{start.toLocaleString()} - <br></br>{end.toLocaleString()}:</div>*/}
+        <div className="activityDescription">Last event (30 minutes):</div>
         <SeismicPlot stationName={station.stationName} setClickedStation={setClickedStation}/>
         {/*<a className="plotRef">...see activity plots</a>*/}
         <StationInfo station={station}/>
