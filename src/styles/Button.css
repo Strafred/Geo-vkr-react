@@ -1,25 +1,23 @@
 .square {
     background: #fff;
-    border: 1px solid #999;
+    border: 2px solid #999;
     float: left;
     font-size: 18px;
     font-weight: bold;
     line-height: normal;
-    height: 34px;
-    margin-right: 10px;
-    margin-top: -1px;
     text-align: center;
-    width: auto;
+    width: 100%;
+    margin: 5px;
     padding: 0 0.5em 0 0.5em;
     border-radius: 3px;
 }
 
-.square:hover {
-    background: #e2dfdf;
+.squareFocus {
+    background: #a0b8ec;
 }
 
-.square:focus {
-    background: #a0b8ec;
+.square:hover {
+    background: #c1ceec;
 }
 
 .buttonText {

@@ -35,26 +35,32 @@ export const StationActivity = ({station, setClickedStation}) => {
     </div>}
     {isEndDateChoosing && <div className="calendar">
       <DayPicker
-      mode="single"
-      selected={endDateSelected}
-      onSelect={selectEndDate}
-    />
+        mode="single"
+        selected={endDateSelected}
+        onSelect={selectEndDate}
+      />
     </div>}
     <div className="stationActivityWindow">
-    <div className="stationName">
-      <div style={{margin: "auto"}}>
-        {station.stationName} availability
+      <div className="stationName">
+        <div style={{margin: "auto"}}>
+          {station.stationName} availability
+        </div>
+        <img className="x" onClick={() => {
+          setClickedStation("");
+        }} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="25" height="20"
+             alt="close station window"/>
       </div>
-      <img className="x" onClick={() => {
-        setClickedStation("");
-      }} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="25" height="20"
-           alt="close station window"/>
-    </div>
       <div className="datepicker">
-        <button type={"button"} onClick={() => {setIsStartDateChoosing(!isStartDateChoosing)}}>{startDateSelected ? startDateSelected.toLocaleDateString() : <div>Start Date</div>}</button>
-        <button type={"button"} onClick={() => {setIsEndDateChoosing(!isEndDateChoosing)}}>{endDateSelected ? endDateSelected.toLocaleDateString() : <div>End Date</div>}</button>
+        <div className={isStartDateChoosing ? "square squareFocus" : "square"} onClick={() => {
+          setIsStartDateChoosing(!isStartDateChoosing);
+          setIsEndDateChoosing(false);
+        }}>{startDateSelected ? startDateSelected.toLocaleDateString() : <div>Start Date</div>}</div>
+        <div className={isEndDateChoosing ? "square squareFocus" : "square"} onClick={() => {
+          setIsEndDateChoosing(!isEndDateChoosing);
+          setIsStartDateChoosing(false);
+        }}>{endDateSelected ? endDateSelected.toLocaleDateString() : <div>End Date</div>}</div>
       </div>
-    <Availability station={station.stationName} start={startDateSelected} end={endDateSelected}/>
-  </div>
+      <Availability station={station.stationName} start={startDateSelected} end={endDateSelected}/>
+    </div>
   </>
 }

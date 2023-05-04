@@ -121,7 +121,8 @@
 
 .datepicker {
   position: relative;
-  margin: 1em auto 0 auto;
+  display: flex;
+  flex-direction: row;
 }
 
 .datepickerDaun {
