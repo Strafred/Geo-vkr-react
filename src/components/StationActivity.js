@@ -1,14 +1,16 @@
-import React from "react";
+import React, {useState} from "react";
 import {Availability} from "./Availability";
 import 'react-day-picker/dist/style.css';
 import {DayPicker} from "react-day-picker";
 import '../styles/StationWindow.css';
 
 export const StationActivity = ({station, setClickedStation}) => {
-  const [isStartDateChoosing, setIsStartDateChoosing] = React.useState(false);
-  const [isEndDateChoosing, setIsEndDateChoosing] = React.useState(false);
-  const [startDateSelected, setStartDateSelected] = React.useState(null);
-  const [endDateSelected, setEndDateSelected] = React.useState(null);
+  const [isStartDateChoosing, setIsStartDateChoosing] = useState(false);
+  const [isEndDateChoosing, setIsEndDateChoosing] = useState(false);
+  const [startDateSelected, setStartDateSelected] = useState(null);
+  const [endDateSelected, setEndDateSelected] = useState(null);
+
+  const [isDatesChosen, setIsDatesChosen] = useState(false);
 
   const selectStartDate = (time) => {
     setIsStartDateChoosing(false);
@@ -52,13 +54,20 @@ export const StationActivity = ({station, setClickedStation}) => {
       </div>
       <div className="datepicker">
         <div className={isStartDateChoosing ? "square squareFocus" : "square"} onClick={() => {
+          setIsDatesChosen(false);
           setIsStartDateChoosing(!isStartDateChoosing);
           setIsEndDateChoosing(false);
         }}>{startDateSelected ? startDateSelected.toLocaleDateString() : <div>Start Date</div>}</div>
         <div className={isEndDateChoosing ? "square squareFocus" : "square"} onClick={() => {
+          setIsDatesChosen(false);
           setIsEndDateChoosing(!isEndDateChoosing);
           setIsStartDateChoosing(false);
         }}>{endDateSelected ? endDateSelected.toLocaleDateString() : <div>End Date</div>}</div>
+        <div className={"square"} style={isDatesChosen ? {width: 25, backgroundColor: "#00ff00"}: {width: 25}} onClick={() => {
+          setIsDatesChosen(!isDatesChosen);
+          console.log("DATES ARE CHOSEN!");
+        }}>ok
+        </div>
       </div>
       <Availability station={station.stationName} start={startDateSelected} end={endDateSelected}/>
     </div>

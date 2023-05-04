@@ -7,8 +7,7 @@
     line-height: normal;
     text-align: center;
     width: 100%;
-    margin: 5px;
-    padding: 0 0.5em 0 0.5em;
+    margin: 3px;
     border-radius: 3px;
 }
 
@@ -18,6 +17,7 @@
 
 .square:hover {
     background: #c1ceec;
+    cursor: pointer;
 }
 
 .buttonText {
