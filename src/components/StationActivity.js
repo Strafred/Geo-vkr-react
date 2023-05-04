@@ -7,10 +7,11 @@ import '../styles/StationWindow.css';
 export const StationActivity = ({station, setClickedStation}) => {
   const [isStartDateChoosing, setIsStartDateChoosing] = useState(false);
   const [isEndDateChoosing, setIsEndDateChoosing] = useState(false);
+
   const [startDateSelected, setStartDateSelected] = useState(null);
   const [endDateSelected, setEndDateSelected] = useState(null);
 
-  const [isDatesChosen, setIsDatesChosen] = useState(false);
+  const [areDatesChosen, setAreDatesChosen] = useState(false);
 
   const selectStartDate = (time) => {
     setIsStartDateChoosing(false);
@@ -54,19 +55,20 @@ export const StationActivity = ({station, setClickedStation}) => {
       </div>
       <div className="datepicker">
         <div className={isStartDateChoosing ? "square squareFocus" : "square"} onClick={() => {
-          setIsDatesChosen(false);
+          setAreDatesChosen(false);
           setIsStartDateChoosing(!isStartDateChoosing);
           setIsEndDateChoosing(false);
         }}>{startDateSelected ? startDateSelected.toLocaleDateString() : <div>Start Date</div>}</div>
         <div className={isEndDateChoosing ? "square squareFocus" : "square"} onClick={() => {
-          setIsDatesChosen(false);
+          setAreDatesChosen(false);
           setIsEndDateChoosing(!isEndDateChoosing);
           setIsStartDateChoosing(false);
         }}>{endDateSelected ? endDateSelected.toLocaleDateString() : <div>End Date</div>}</div>
-        <div className={"square"} style={isDatesChosen ? {width: 25, backgroundColor: "#00ff00"}: {width: 25}} onClick={() => {
-          setIsDatesChosen(!isDatesChosen);
-          console.log("DATES ARE CHOSEN!");
-        }}>ok
+        <div className={"square"} style={areDatesChosen ? {width: 25, backgroundColor: "#00ff00"} : {width: 25}}
+             onClick={() => {
+               setAreDatesChosen(!areDatesChosen);
+               console.log("DATES ARE CHOSEN!");
+             }}>ok
         </div>
       </div>
       <Availability station={station.stationName} start={startDateSelected} end={endDateSelected}/>
