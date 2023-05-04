@@ -28,12 +28,13 @@ function merge(intervals) {
   return res;
 }
 
-export const Availability = ({station, start, end}) => {
+export const Availability = ({station, start, end, areDatesChosen}) => {
   const [stationsData, setStationsData] = useState([]);
   const [isDataAvailable, setIsDataAvailable] = useState(true);
   const [workingPercent, setWorkingPercent] = useState(null);
   const [range, setRange] = useState([]);
   let stationRef = useRef(station);
+  let datesRef = useRef([start, end]);
 
   useEffect(() => {
     console.log(station);
@@ -43,7 +44,7 @@ export const Availability = ({station, start, end}) => {
     let stationsData = [];
 
     let getAvailabilityURL;
-    if (!start || !end) {
+    if (!start || !end || !areDatesChosen) {
       getAvailabilityURL = `http://84.237.89.72:8080/fdsnws/availability/1/query?starttime=2022-10-01T00%3A00%3A00&endtime=2022-10-31T00%3A00%3A00&station=${station}`;
     } else {
       let startSegment = start.toLocaleDateString().split(".");
@@ -89,7 +90,7 @@ export const Availability = ({station, start, end}) => {
           return acc;
         }, 0);
         let totalTime;
-        if (start && end && ((new Date(mergedIntervals[mergedIntervals.length - 1][1]) - new Date(mergedIntervals[0][0])) < (new Date(end) - new Date(start)))) {
+        if (areDatesChosen && start && end && ((new Date(mergedIntervals[mergedIntervals.length - 1][1]) - new Date(mergedIntervals[0][0])) < (new Date(end) - new Date(start)))) {
           setRange([start, end]);
           totalTime = (new Date(end) - new Date(start)) / 1000;
         } else {
@@ -122,12 +123,20 @@ export const Availability = ({station, start, end}) => {
         });
 
         setStationsData(allData);
+        datesRef.current = [start, end];
       });
-  }, [station, start, end]);
+  }, [station, areDatesChosen]);
 
   if (!isDataAvailable) {
     return (
       <div className="noDataWarning">NO DATA
+      </div>
+    )
+  }
+
+  if (datesRef.current[0] !== start || datesRef.current[1] !== end) {
+    return (
+      <div className="lds-dual-ring-availability">
       </div>
     )
   }
@@ -144,7 +153,7 @@ export const Availability = ({station, start, end}) => {
       <div className="availabilityComponent">
         <Plot data={stationsData}
               layout={{
-                width: 280,
+                width: 295,
                 height: 130,
                 xaxis: {
                   tickfont: {
@@ -157,7 +166,7 @@ export const Availability = ({station, start, end}) => {
                 },
                 yaxis: {fixedrange: true, range: [0, 1.1]},
                 margin: {
-                  l: 30,
+                  l: 5,
                   r: 0,
                   b: 20,
                   t: 10,
@@ -201,11 +210,11 @@ export const Availability = ({station, start, end}) => {
             const {ctx, data} = chart;
             const meta = chart.getDatasetMeta(0);
 
-            ctx.font = "bold 35px sans-serif";
+            ctx.font = "bold 50px sans-serif";
             ctx.fillStyle = "#333"
             ctx.textAlign = "center";
 
-            ctx.fillText(`${formatNumber(data.datasets[0].data[0]) * 100}%`, meta.data[0].x, meta.data[0].y);
+            ctx.fillText(`${Math.round((data.datasets[0].data[0]) * 100)}%`, meta.data[0].x, meta.data[0].y);
           }
         }
       ]}/>

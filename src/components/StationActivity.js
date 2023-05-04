@@ -64,14 +64,14 @@ export const StationActivity = ({station, setClickedStation}) => {
           setIsEndDateChoosing(!isEndDateChoosing);
           setIsStartDateChoosing(false);
         }}>{endDateSelected ? endDateSelected.toLocaleDateString() : <div>End Date</div>}</div>
-        <div className={"square"} style={areDatesChosen ? {width: 25, backgroundColor: "#00ff00"} : {width: 25}}
+        <div className={"square"} style={areDatesChosen ? {width: 25, backgroundColor: "#00ff00", paddingLeft: 1, paddingRight: 1} : {width: 25, paddingLeft: 1, paddingRight: 1}}
              onClick={() => {
                setAreDatesChosen(!areDatesChosen);
                console.log("DATES ARE CHOSEN!");
              }}>ok
         </div>
       </div>
-      <Availability station={station.stationName} start={startDateSelected} end={endDateSelected}/>
+      <Availability station={station.stationName} start={startDateSelected} end={endDateSelected} areDatesChosen={areDatesChosen}/>
     </div>
   </>
 }
