@@ -63,8 +63,10 @@ export function SeismicPlot(props) {
   }, [props.xData, props.yData]);
 
   if (props.xData.length === 0 || props.yData.length === 0) {
-    return <div className="noDataWarning">NO DATA
+    return <div className="lds-dual-ring">
     </div>
+    // return <div className="noDataWarning">NO DATA
+    // </div>
   }
 
   // console.log(props.xData.length);
@@ -72,7 +74,7 @@ export function SeismicPlot(props) {
   // console.log(props.range[0]);
   // console.log(props.range[1]);
 
-  const channel = props.name ? <div>{props.name} channel:</div> : <div/>;
+  const channel = props.name ? <div>{props.name}</div> : <div/>;
 
   console.log(allData);
   console.log(layout);
@@ -80,16 +82,25 @@ export function SeismicPlot(props) {
     <>
       {channel}
       <Plot
+        className="seisplot"
         data={[
           {
             x: props.xData,
             y: props.yData,
             type: 'scatter',
             mode: 'lines+markers',
-            marker: {color: 'red'},
+            marker: {color: '#005896', size: 3},
+            line: {
+              color: '#005896',
+              width: 1,
+            },
+            hoverinfo: 'closest',
           },
         ]}
-        layout={ {width: 190, height: 60, title: 'A Fancy Plot', xaxis: {
+        layout={ {
+          width: 190,
+          height: 60,
+          xaxis: {
             range: [props.range[0].getTime(), props.range[1].getTime()],
             tickangle: 0,
             tickfont: {
@@ -98,8 +109,33 @@ export function SeismicPlot(props) {
               color: '#005896',
             },
             constrain: 'domain',
-          }, margin: {l: 0, r: 0, b: 11, t: 0},
-          pad: {l: 4},} }
+          },
+          margin: {l: 0, r: 0, b: 11, t: 0},
+          pad: {l: 4},
+          hovermode: 'closest',
+          }
+        }
+        config={{
+          modeBarButtonsToRemove: [
+          'toImage',
+          'sendDataToCloud',
+          'autoScale2d',
+          'resetScale2d',
+          'zoom2d',
+          'pan2d',
+          'select2d',
+          'lasso2d',
+          'zoomIn2d',
+          'zoomOut2d',
+          'hoverClosestCartesian',
+          'hoverCompareCartesian',
+          'toggleSpikelines',
+          'resetViews',
+          'toggleHover',
+          'resetViewMapbox',
+          ],
+          displaylogo: false,
+        }}
       />
     </>
   )

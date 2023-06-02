@@ -75,7 +75,6 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
         <div className="stationNetwork">
           {station.network} network
         </div>
-        <div className="activityDescription">Last event:</div>
         <SeismicPlot name="Packets count:"
                      color={"#005896"}
                      range={plotRange}
