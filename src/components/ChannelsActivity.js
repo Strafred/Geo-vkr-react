@@ -7,7 +7,7 @@ import {downsamplePlotDataSegment} from "../utils/dataUtils";
 export function SeismicPlot(props) {
   const [layout, setLayout] = useState({
     xaxis: {
-      range: [props.range[0].getTime(), props.range[1].getTime()],
+      range: [props.range[0], props.range[1]],
       tickangle: 0,
       tickfont: {
         family: 'Arial, sans-serif',
@@ -32,7 +32,7 @@ export function SeismicPlot(props) {
       ...layout,
       xaxis: {
         ...layout.xaxis,
-        range: [props.range[0].getTime(), props.range[1].getTime()],
+        range: [props.range[0], props.range[1]],
       }
     }));
   }, [props.range[0], props.range[1]]);
@@ -95,13 +95,14 @@ export function SeismicPlot(props) {
               width: 1,
             },
             hoverinfo: 'closest',
+            hovertemplate: 'packets: %{y}<extra></extra>'
           },
         ]}
         layout={ {
           width: 190,
           height: 60,
           xaxis: {
-            range: [props.range[0].getTime(), props.range[1].getTime()],
+            range: [props.range[0], props.range[1]],
             tickangle: 0,
             tickfont: {
               family: 'Arial, sans-serif',

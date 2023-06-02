@@ -46,7 +46,7 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
           let oldDate = new Date(currentDate);
           oldDate.setMinutes(oldDate.getMinutes() - 1);
 
-          setXDrawData((xDrawData) => [...xDrawData, currentDate.getTime()]);
+          setXDrawData((xDrawData) => [...xDrawData, currentDate]);
           setYDrawData((yDrawData) => [...yDrawData, parseInt(data.message)]);
           setPacketsCount(data.message);
           setPlotRange([oldDate, currentDate]);
