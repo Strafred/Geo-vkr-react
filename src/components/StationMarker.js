@@ -5,7 +5,6 @@ import {Marker} from "react-leaflet";
 export const StationMarker = ({station, clickedStation, setClickedStation}) => {
   const [mIcon, setMIcon] = useState(markerIcon);
   const [isClicked, setIsClicked] = useState(false);
-  // const map = useMap(); // for flyTo
 
   useEffect(() => {
     if (clickedStation !== station.stationName) {

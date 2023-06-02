@@ -4,12 +4,10 @@ import React, {useEffect, useRef, useState} from "react";
 import '../styles/Map.css'
 import {downsamplePlotDataSegment} from "../utils/dataUtils";
 
-function SeisPlot(props) {
-  const originalRange = props.range;
-  const [range, setRange] = useState(props.range);
+export function SeismicPlot(props) {
   const [layout, setLayout] = useState({
     xaxis: {
-      range: [range[0], range[1]],
+      range: [props.range[0].getTime(), props.range[1].getTime()],
       tickangle: 0,
       tickfont: {
         family: 'Arial, sans-serif',
@@ -19,71 +17,50 @@ function SeisPlot(props) {
       constrain: 'domain',
     },
     yaxis: {
-      fixedrange: true,
-      autorange: true,
-      visible: false
+      range: [props.yData[0], props.yData[props.yData.length - 1]],
     },
     hovermode: 'closest',
     width: 190,
-    height: 60,
+    height: 300,
     margin: {l: 0, r: 0, b: 11, t: 0},
     pad: {l: 4},
   });
+  const [allData, setAllData] = useState([]);
 
-  const handleLayoutChange = (data) => {
-    let newRange = [data['xaxis.range[0]'], data['xaxis.range[1]']];
-    let newDateRange = [new Date(newRange[0]), new Date(newRange[1])];
-    if (newDateRange[1] <= originalRange[1] && newDateRange[0] >= originalRange[0]) {
-      setRange(newDateRange);
-    } else {
-      let diffMilliseconds = newDateRange[1] - newDateRange[0];
-      if (diffMilliseconds > (originalRange[1] - originalRange[0])) {
-        setRange([...originalRange]);
-        setLayout({
-          ...layout,
-          xaxis: {
-            ...layout.xaxis,
-            range: [...originalRange],
-          }
-        });
-        return;
+  useEffect(() => {
+    setLayout(({
+      ...layout,
+      xaxis: {
+        ...layout.xaxis,
+        range: [props.range[0].getTime(), props.range[1].getTime()],
       }
+    }));
+  }, [props.range[0], props.range[1]]);
 
-      if (newDateRange[0] < originalRange[0]) {
-        let newRangeEnd = new Date(originalRange[0]);
-        newRangeEnd.setMilliseconds(newRangeEnd.getMilliseconds() + diffMilliseconds);
-
-        setRange([originalRange[0], newRangeEnd]);
-        setLayout({
-          ...layout,
-          xaxis: {
-            ...layout.xaxis,
-            range: [originalRange[0], newRangeEnd],
-          }
-        });
-      } else if (newDateRange[1] > originalRange[1]) {
-        let newRangeStart = new Date(originalRange[1]);
-        newRangeStart.setMilliseconds(newRangeStart.getMilliseconds() - diffMilliseconds);
-
-        setRange([newRangeStart, originalRange[1]]);
-        setLayout({
-          ...layout,
-          xaxis: {
-            ...layout.xaxis,
-            range: [newRangeStart, originalRange[1]],
-          }
-        });
-      } else {
-        setLayout({
-          ...layout,
-          xaxis: {
-            ...layout.xaxis,
-            range: [...range],
-          }
-        });
-      }
+  useEffect(() => {
+    let data = [];
+    for (let i = 0; i < props.xData.length; i++) {
+      data.push({
+        x: props.xData[i],
+        y: props.yData[i],
+        type: 'scatter',
+        mode: 'lines',
+        line: {
+          color: '#005896',
+          width: 10,
+        },
+        hoverinfo: 'none',
+      });
     }
-  };
+    setAllData(data);
+    setLayout(({
+      ...layout,
+      yaxis: {
+        ...layout.yaxis,
+        range: [props.yData[0], props.yData[props.yData.length - 1]],
+      }
+    }));
+  }, [props.xData, props.yData]);
 
   if (props.xData.length === 0 || props.yData.length === 0) {
     return <div className="noDataWarning">NO DATA
@@ -95,34 +72,34 @@ function SeisPlot(props) {
   // console.log(props.range[0]);
   // console.log(props.range[1]);
 
-  let allData = [];
-  for (let i = 0; i < props.xData.length; i++) {
-    allData.push({
-      x: props.xData[i],
-      y: props.yData[i],
-      type: 'scatter',
-      line: {
-        width: 0.75,
-        color: props.color,
-      },
-      showlegend: false,
-      hoverinfo: 'none',
-    })
-  }
-
   const channel = props.name ? <div>{props.name} channel:</div> : <div/>;
 
+  console.log(allData);
+  console.log(layout);
   return (
     <>
       {channel}
-      <Plot className="seisplot"
-            data={allData}
-            layout={layout}
-            config={{
-              modeBarButtonsToRemove: ['toImage', 'zoom2d', 'pan2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d'],
-              displaylogo: false,
-            }}
-            onRelayout={handleLayoutChange}
+      <Plot
+        data={[
+          {
+            x: props.xData,
+            y: props.yData,
+            type: 'scatter',
+            mode: 'lines+markers',
+            marker: {color: 'red'},
+          },
+        ]}
+        layout={ {width: 190, height: 60, title: 'A Fancy Plot', xaxis: {
+            range: [props.range[0].getTime(), props.range[1].getTime()],
+            tickangle: 0,
+            tickfont: {
+              family: 'Arial, sans-serif',
+              size: 9,
+              color: '#005896',
+            },
+            constrain: 'domain',
+          }, margin: {l: 0, r: 0, b: 11, t: 0},
+          pad: {l: 4},} }
       />
     </>
   )
@@ -143,7 +120,7 @@ async function getDataFromStation(station, start, end) {
   return seismograms;
 }
 
-export function SeismicPlot({stationName, setClickedStation}) {
+export function ChannelsActivity({stationName, setClickedStation}) {
   const start = new Date();
   const end = new Date(start);
   start.setHours(start.getHours() - 6);
@@ -269,18 +246,18 @@ export function SeismicPlot({stationName, setClickedStation}) {
   // console.log(xFirstData);
   // console.log(yFirstData);
 
-  return showGraphics ? <><SeisPlot name={seismograms[0] ? seismograms[0]._segmentArray[0].channelCode : ""}
-                                    color={"#fd5050"}
-                                    range={xFirstData.length > 0 ? [xFirstData[0][0], xFirstData[xFirstData.length - 1][xFirstData[xFirstData.length - 1].length - 1]] : [start, end]}
-                                    xData={xFirstData} yData={yFirstData}/>
-      <SeisPlot name={seismograms[1] ? seismograms[1]._segmentArray[0].channelCode : ""}
-                color={"#00ff00"}
-                range={xSecondData.length > 0 ? [xSecondData[0][0], xSecondData[xSecondData.length - 1][xSecondData[xSecondData.length - 1].length - 1]] : [start, end]}
-                xData={xSecondData} yData={ySecondData}/>
-      <SeisPlot name={seismograms[2] ? seismograms[2]._segmentArray[0].channelCode : ""}
-                color={"#005896"}
-                range={xThirdData.length > 0 ? [xThirdData[0][0], xThirdData[xThirdData.length - 1][xThirdData[xThirdData.length - 1].length - 1]] : [start, end]}
-                xData={xThirdData} yData={yThirdData}/></> :
+  return showGraphics ? <><SeismicPlot name={seismograms[0] ? seismograms[0]._segmentArray[0].channelCode : ""}
+                                       color={"#fd5050"}
+                                       range={xFirstData.length > 0 ? [xFirstData[0][0], xFirstData[xFirstData.length - 1][xFirstData[xFirstData.length - 1].length - 1]] : [start, end]}
+                                       xData={xFirstData} yData={yFirstData}/>
+      <SeismicPlot name={seismograms[1] ? seismograms[1]._segmentArray[0].channelCode : ""}
+                   color={"#00ff00"}
+                   range={xSecondData.length > 0 ? [xSecondData[0][0], xSecondData[xSecondData.length - 1][xSecondData[xSecondData.length - 1].length - 1]] : [start, end]}
+                   xData={xSecondData} yData={ySecondData}/>
+      <SeismicPlot name={seismograms[2] ? seismograms[2]._segmentArray[0].channelCode : ""}
+                   color={"#005896"}
+                   range={xThirdData.length > 0 ? [xThirdData[0][0], xThirdData[xThirdData.length - 1][xThirdData[xThirdData.length - 1].length - 1]] : [start, end]}
+                   xData={xThirdData} yData={yThirdData}/></> :
     <div className="lds-dual-ring">
     </div>
 }

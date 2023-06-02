@@ -1,33 +1,64 @@
-import React from "react";
-import {SeismicPlot} from "./SeismicPlot";
+import React, {useEffect, useState} from "react";
+import {io} from "socket.io-client";
+import {SeismicPlot} from "./ChannelsActivity";
 
-function StationInfo({station}) {
-  console.log(station);
-  return (
-    <div className="stationInfoBlock">
-      <div className="stationInfo">
-        <div className="stationInfoHeader">
-          <div>
-            Station Info
-          </div>
-        </div>
-        <div className="stationCharacteristics">
-          <div className="stationChar"><strong>Latitude:&nbsp;</strong>{station.latitude}</div>
-          <div className="stationChar"><strong>Longitude:&nbsp;</strong>{station.longitude}</div>
-          <div className="stationChar"><strong>Elevation:&nbsp;</strong>{station.elevation}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-StationInfo.propTypes = {};
 export const ChosenStationWindow = ({station, setClickedStation}) => {
+  const [memoryAvailable, setMemoryAvailable] = useState(null);
+  const [packetsCount, setPacketsCount] = useState(null);
+  const [xDrawData, setXDrawData] = useState([]);
+  const [yDrawData, setYDrawData] = useState([]);
+
   const start = new Date();
   const end = new Date(start);
-  start.setHours(start.getHours() - 6);
-  start.setMinutes(start.getMinutes() - 30);
-  end.setHours(end.getHours() - 6);
+  start.setMinutes(start.getMinutes() - 1);
+  const [plotRange, setPlotRange] = useState([start, end]);
+
+  // console.log("plotRange: ", plotRange);
+  // console.log(xDrawData);
+  // console.log(yDrawData);
+
+  useEffect(() => {
+      setXDrawData([]);
+      setYDrawData([]);
+
+      const start = new Date();
+      const end = new Date(start);
+      start.setMinutes(start.getMinutes() - 1);
+
+      setPlotRange([start, end]);
+
+      let socket = io.connect("http://localhost:3333");
+      socket.on("connect", () => {
+        console.log("connected");
+      });
+      socket.on("disconnect", () => {
+        console.log("disconnected");
+      });
+      socket.on("message", (data) => {
+        // console.log(data);
+        if (data.topic === `DREG/{${station.stationName}}/debug/lwip_stats/mem_avail`) {
+          // console.log("memory available: ", data.message);
+          setMemoryAvailable(data.message);
+        }
+        if (data.topic === `DREG/{${station.stationName}}/gps/pps/count`) {
+          // console.log("packets count: ", data.message);
+          let currentDate = new Date();
+          let oldDate = new Date(currentDate);
+          oldDate.setMinutes(oldDate.getMinutes() - 1);
+
+          setXDrawData((xDrawData) => [...xDrawData, currentDate.getTime()]);
+          setYDrawData((yDrawData) => [...yDrawData, parseInt(data.message)]);
+          setPacketsCount(data.message);
+          setPlotRange([oldDate, currentDate]);
+        }
+      });
+
+      socket.emit("chooseStation", station.stationName);
+      return () => {
+        socket.disconnect();
+      };
+    }
+  , [station]);
 
   return (
     <div className="chosenStationWindow">
@@ -42,13 +73,28 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
       </div>
       <div className="stationContent">
         <div className="stationNetwork">
-          {station.network}
+          {station.network} network
         </div>
-        {/*<div className="activityDescription">Last event<br></br>{start.toLocaleString()} - <br></br>{end.toLocaleString()}:</div>*/}
         <div className="activityDescription">Last event:</div>
-        <SeismicPlot stationName={station.stationName} setClickedStation={setClickedStation}/>
-        {/*<a className="plotRef">...see activity plots</a>*/}
-        <StationInfo station={station}/>
+        <SeismicPlot name="Packets count:"
+                     color={"#005896"}
+                     range={plotRange}
+                     xData={xDrawData} yData={yDrawData}/>
+        <div className="stationInfoBlock">
+          <div className="stationInfo">
+            <div className="stationInfoHeader">
+              <div>
+                Station Info
+              </div>
+            </div>
+            <div className="stationCharacteristics">
+              <div className="stationChar"><strong>Latitude:&nbsp;</strong>{station.latitude}</div>
+              <div className="stationChar"><strong>Longitude:&nbsp;</strong>{station.longitude}</div>
+              <div className="stationChar"><strong>Memory available:&nbsp;</strong>{memoryAvailable}</div>
+              <div className="stationChar"><strong>Packets:&nbsp;</strong>{packetsCount}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>);
-}
+};
