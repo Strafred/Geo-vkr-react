@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {io} from "socket.io-client";
 import {SeismicPlot} from "./ChannelsActivity";
+import mqtt from "precompiled-mqtt";
+
+let lastTopic = "#";
 
 export const ChosenStationWindow = ({station, setClickedStation}) => {
   const [memoryAvailable, setMemoryAvailable] = useState(null);
@@ -27,43 +30,35 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
 
       setPlotRange([start, end]);
 
-      let socket = io.connect("http://localhost:3333");
-      socket.on("connect", () => {
-        console.log("connected");
-      });
-      socket.on("disconnect", () => {
-        console.log("disconnected");
-      });
-      socket.on("message", (data) => {
-        // console.log(data);
-        if (data.topic === `DREG/{${station.stationName}}/debug/lwip_stats/mem_avail`) {
-          // console.log("memory available: ", data.message);
-          setMemoryAvailable(data.message);
-        }
-        if (data.topic === `DREG/{${station.stationName}}/gps/pps/count`) {
-          // console.log("packets count: ", data.message);
-          let currentDate = new Date();
-          let oldDate = new Date(currentDate);
-          oldDate.setMinutes(oldDate.getMinutes() - 1);
-
-          setXDrawData((xDrawData) => [...xDrawData, currentDate]);
-          setYDrawData((yDrawData) => [...yDrawData, parseInt(data.message)]);
-          setPacketsCount(data.message);
-          setPlotRange([oldDate, currentDate]);
-        }
+      const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
+      const client = mqtt.connect(`ws://81.26.80.192:8080`, {
+        clientId: clientId,
+        username: "dregserver2",
+        password: "T#eP0wer"
       });
 
-      socket.emit("chooseStation", station.stationName);
-      return () => {
-        socket.disconnect();
-      };
+      client.on('connect', () => console.log("connected"));
+      client.on('disconnect', () => console.log("disconnected"));
+      client.unsubscribe(lastTopic);
+      client.subscribe(`DREG/{${station.stationName}}/metric/ch1_mid`);
+      lastTopic = `DREG/{${station.stationName}}/metric/ch1_mid`;
+      client.on('message', (topic, payload, packet) => {
+        console.log("message: " + payload.toString());
+        let currentDate = new Date();
+        let oldDate = new Date(currentDate);
+        oldDate.setMinutes(oldDate.getMinutes() - 1);
+
+        setXDrawData((xDrawData) => [...xDrawData, currentDate]);
+        setYDrawData((yDrawData) => [...yDrawData, parseInt(payload.toString())]);
+        setPlotRange([oldDate, currentDate]);
+      });
     }
   , [station]);
 
   return (
     <div className="chosenStationWindow">
       <div className="stationName">
-        <div style={{marginLeft: 50}}>
+        <div style={{marginLeft: 53}}>
           {station.stationName}
         </div>
         <img className="x" onClick={() => {

@@ -116,7 +116,6 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-
 }
 
 .datepicker {
@@ -151,6 +150,7 @@
 
 .stationNetwork {
   font-size: 1.3em;
+  text-align: center;
   overflow: auto;
   color: #21849a;
 }
