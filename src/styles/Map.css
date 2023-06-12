@@ -46,9 +46,7 @@
 
 .lds-dual-ring {
     position: relative;
-    margin-left: 30.5%;
-    margin-bottom: 0.5em;
-    margin-top: 0.2em;
+    margin: auto;
 }
 
 .lds-dual-ring:after {

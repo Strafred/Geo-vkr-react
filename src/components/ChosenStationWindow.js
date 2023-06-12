@@ -1,34 +1,57 @@
 import React, {useEffect, useState} from "react";
-import {io} from "socket.io-client";
 import {SeismicPlot} from "./ChannelsActivity";
 import mqtt from "precompiled-mqtt";
+import {InfluxDB} from '@influxdata/influxdb-client';
+import {getLastMinute} from "../utils/timeUtils";
 
 let lastTopic = "#";
+const token = "S0vfLq6KkWCrOYGYeDsJ-AD38xbBIUdjJ5tsoeZmlAf1wUOlu99zgepe8-5Bg7GGbdpswaO4wlN8dQTbXCuRgw==";
+const org = "04a2af7a92291610";
+const url = "http://81.26.80.192:8086";
 
 export const ChosenStationWindow = ({station, setClickedStation}) => {
-  const [memoryAvailable, setMemoryAvailable] = useState(null);
-  const [packetsCount, setPacketsCount] = useState(null);
-  const [xDrawData, setXDrawData] = useState([]);
-  const [yDrawData, setYDrawData] = useState([]);
+  const [channelOneXDrawData, setChannelOneXDrawData] = useState([]);
+  const [channelOneYDrawData, setChannelOneYDrawData] = useState([]);
+  const [channelOnePlotRange, setChannelOnePlotRange] = useState(getLastMinute());
 
-  const start = new Date();
-  const end = new Date(start);
-  start.setMinutes(start.getMinutes() - 1);
-  const [plotRange, setPlotRange] = useState([start, end]);
+  const [channelTwoXDrawData, setChannelTwoXDrawData] = useState([]);
+  const [channelTwoYDrawData, setChannelTwoYDrawData] = useState([]);
+  const [channelTwoPlotRange, setChannelTwoPlotRange] = useState(getLastMinute());
 
-  // console.log("plotRange: ", plotRange);
-  // console.log(xDrawData);
-  // console.log(yDrawData);
+  const [channelThreeXDrawData, setChannelThreeXDrawData] = useState([]);
+  const [channelThreeYDrawData, setChannelThreeYDrawData] = useState([]);
+  const [channelThreePlotRange, setChannelThreePlotRange] = useState(getLastMinute());
 
   useEffect(() => {
-      setXDrawData([]);
-      setYDrawData([]);
+      setChannelOneXDrawData([]);
+      setChannelOneYDrawData([]);
+
+      setChannelTwoXDrawData([]);
+      setChannelTwoYDrawData([]);
+
+      setChannelThreeXDrawData([]);
+      setChannelThreeYDrawData([]);
+
+      const queryAPI = new InfluxDB({url, token}).getQueryApi(org);
+
+      const fluxQuery = `from(bucket: "DREG") |> range(start: -1m) |> filter (fn: (r) => r.topic == "DREG/{23-001}/metric/ch3_max") |> map (fn: (r) => ({time: r._time, value: r._value}))`
+      console.log(fluxQuery);
+      const myQuery = async () => {
+        for await (const {values, tableMeta} of queryAPI.iterateRows(fluxQuery)) {
+          const o = tableMeta.toObject(values);
+          console.log(o.time);
+          console.log(o.value);
+          setChannelOneXDrawData((xDrawData) => [...xDrawData, new Date(o.time)]);
+          setChannelOneYDrawData((yDrawData) => [...yDrawData, o.value]);
+        }
+      }
+      myQuery();
 
       const start = new Date();
       const end = new Date(start);
       start.setMinutes(start.getMinutes() - 1);
 
-      setPlotRange([start, end]);
+      setChannelOnePlotRange([start, end]);
 
       const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
       const client = mqtt.connect(`ws://81.26.80.192:8080`, {
@@ -48,9 +71,14 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
         let oldDate = new Date(currentDate);
         oldDate.setMinutes(oldDate.getMinutes() - 1);
 
-        setXDrawData((xDrawData) => [...xDrawData, currentDate]);
-        setYDrawData((yDrawData) => [...yDrawData, parseInt(payload.toString())]);
-        setPlotRange([oldDate, currentDate]);
+        setChannelOneXDrawData((xDrawData) => [...xDrawData, currentDate]);
+        setChannelOneYDrawData((yDrawData) => [...yDrawData, parseInt(payload.toString())]);
+        setChannelOnePlotRange([oldDate, currentDate]);
+      });
+
+      return (() => {
+        client.unsubscribe(lastTopic);
+        client.end();
       });
     }
   , [station]);
@@ -58,7 +86,7 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
   return (
     <div className="chosenStationWindow">
       <div className="stationName">
-        <div style={{marginLeft: 53}}>
+        <div style={{margin: "auto"}}>
           {station.stationName}
         </div>
         <img className="x" onClick={() => {
@@ -70,10 +98,10 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
         <div className="stationNetwork">
           {station.network} network
         </div>
-        <SeismicPlot name="Packets count:"
+        <SeismicPlot name="ch1_mid:"
                      color={"#005896"}
-                     range={plotRange}
-                     xData={xDrawData} yData={yDrawData}/>
+                     range={channelOnePlotRange}
+                     xData={channelOneXDrawData} yData={channelOneYDrawData}/>
         <div className="stationInfoBlock">
           <div className="stationInfo">
             <div className="stationInfoHeader">
@@ -82,10 +110,8 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
               </div>
             </div>
             <div className="stationCharacteristics">
-              <div className="stationChar"><strong>Latitude:&nbsp;</strong>{station.latitude}</div>
+              <div className="stationChar"><strong>Latitude:&nbsp;</strong><div>{station.latitude}</div></div>
               <div className="stationChar"><strong>Longitude:&nbsp;</strong>{station.longitude}</div>
-              <div className="stationChar"><strong>Memory available:&nbsp;</strong>{memoryAvailable}</div>
-              <div className="stationChar"><strong>Packets:&nbsp;</strong>{packetsCount}</div>
             </div>
           </div>
         </div>

@@ -22,7 +22,7 @@ export function SeismicPlot(props) {
     hovermode: 'closest',
     width: 190,
     height: 300,
-    margin: {l: 0, r: 0, b: 11, t: 0},
+    margin: {l: 0, r: 10, b: 11, t: 0},
     pad: {l: 4},
   });
   const [allData, setAllData] = useState([]);
