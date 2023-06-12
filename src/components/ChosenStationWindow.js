@@ -34,24 +34,24 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
 
       const queryAPI = new InfluxDB({url, token}).getQueryApi(org);
 
-      const fluxQuery = `from(bucket: "DREG") |> range(start: -1m) |> filter (fn: (r) => r.topic == "DREG/{23-001}/metric/ch3_max") |> map (fn: (r) => ({time: r._time, value: r._value}))`
-      console.log(fluxQuery);
-      const myQuery = async () => {
-        for await (const {values, tableMeta} of queryAPI.iterateRows(fluxQuery)) {
+      const firstChannelDataQuery = `from(bucket: "DREG") |> range(start: -1m) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/metric/ch1_mid") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
+      const secondChannelDataQuery = `from(bucket: "DREG") |> range(start: -1m) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/metric/ch2_mid") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
+      const thirdChannelDataQuery = `from(bucket: "DREG") |> range(start: -1m) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/metric/ch3_mid") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
+
+      const dataQuery = async (query, setXDrawData, setYDrawData) => {
+        for await (const {values, tableMeta} of queryAPI.iterateRows(query)) {
           const o = tableMeta.toObject(values);
-          console.log(o.time);
-          console.log(o.value);
-          setChannelOneXDrawData((xDrawData) => [...xDrawData, new Date(o.time)]);
-          setChannelOneYDrawData((yDrawData) => [...yDrawData, o.value]);
+          setXDrawData((xDrawData) => [...xDrawData, new Date(o.time)]);
+          setYDrawData((yDrawData) => [...yDrawData, o.value]);
         }
       }
-      myQuery();
+      dataQuery(firstChannelDataQuery, setChannelOneXDrawData, setChannelOneYDrawData);
+      dataQuery(secondChannelDataQuery, setChannelTwoXDrawData, setChannelTwoYDrawData);
+      dataQuery(thirdChannelDataQuery, setChannelThreeXDrawData, setChannelThreeYDrawData);
 
-      const start = new Date();
-      const end = new Date(start);
-      start.setMinutes(start.getMinutes() - 1);
-
-      setChannelOnePlotRange([start, end]);
+      setChannelOnePlotRange(getLastMinute());
+      setChannelTwoPlotRange(getLastMinute());
+      setChannelThreePlotRange(getLastMinute());
 
       const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
       const client = mqtt.connect(`ws://81.26.80.192:8080`, {
@@ -63,17 +63,30 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
       client.on('connect', () => console.log("connected"));
       client.on('disconnect', () => console.log("disconnected"));
       client.unsubscribe(lastTopic);
-      client.subscribe(`DREG/{${station.stationName}}/metric/ch1_mid`);
-      lastTopic = `DREG/{${station.stationName}}/metric/ch1_mid`;
+      client.subscribe(`DREG/{${station.stationName}}/metric/#`);
+      lastTopic = `DREG/{${station.stationName}}/metric/#`;
+
       client.on('message', (topic, payload, packet) => {
         console.log("message: " + payload.toString());
-        let currentDate = new Date();
-        let oldDate = new Date(currentDate);
-        oldDate.setMinutes(oldDate.getMinutes() - 1);
+        if (topic === `DREG/{${station.stationName}}/metric/ch1_mid`) {
+          const [oldDate, currentDate] = getLastMinute();
 
-        setChannelOneXDrawData((xDrawData) => [...xDrawData, currentDate]);
-        setChannelOneYDrawData((yDrawData) => [...yDrawData, parseInt(payload.toString())]);
-        setChannelOnePlotRange([oldDate, currentDate]);
+          setChannelOneXDrawData((xDrawData) => [...xDrawData, currentDate]);
+          setChannelOneYDrawData((yDrawData) => [...yDrawData, parseInt(payload.toString())]);
+          setChannelOnePlotRange([oldDate, currentDate]);
+        } else if (topic === `DREG/{${station.stationName}}/metric/ch2_mid`) {
+          const [oldDate, currentDate] = getLastMinute();
+
+          setChannelTwoXDrawData((xDrawData) => [...xDrawData, currentDate]);
+          setChannelTwoYDrawData((yDrawData) => [...yDrawData, parseInt(payload.toString())]);
+          setChannelTwoPlotRange([oldDate, currentDate]);
+        } else if (topic === `DREG/{${station.stationName}}/metric/ch3_mid`) {
+          const [oldDate, currentDate] = getLastMinute();
+
+          setChannelThreeXDrawData((xDrawData) => [...xDrawData, currentDate]);
+          setChannelThreeYDrawData((yDrawData) => [...yDrawData, parseInt(payload.toString())]);
+          setChannelThreePlotRange([oldDate, currentDate]);
+        }
       });
 
       return (() => {
@@ -81,7 +94,7 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
         client.end();
       });
     }
-  , [station]);
+    , [station]);
 
   return (
     <div className="chosenStationWindow">
@@ -98,10 +111,18 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
         <div className="stationNetwork">
           {station.network} network
         </div>
-        <SeismicPlot name="ch1_mid:"
-                     color={"#005896"}
+        <SeismicPlot name="Channel 1 mid:"
+                     color={"#fd5050"}
                      range={channelOnePlotRange}
                      xData={channelOneXDrawData} yData={channelOneYDrawData}/>
+        <SeismicPlot name="Channel 2 mid:"
+                     color={"#00ff00"}
+                     range={channelTwoPlotRange}
+                     xData={channelTwoXDrawData} yData={channelTwoYDrawData}/>
+        <SeismicPlot name="Channel 3 mid:"
+                     color={"#005896"}
+                     range={channelThreePlotRange}
+                     xData={channelThreeXDrawData} yData={channelThreeYDrawData}/>
         <div className="stationInfoBlock">
           <div className="stationInfo">
             <div className="stationInfoHeader">
@@ -110,7 +131,9 @@ export const ChosenStationWindow = ({station, setClickedStation}) => {
               </div>
             </div>
             <div className="stationCharacteristics">
-              <div className="stationChar"><strong>Latitude:&nbsp;</strong><div>{station.latitude}</div></div>
+              <div className="stationChar"><strong>Latitude:&nbsp;</strong>
+                <div>{station.latitude}</div>
+              </div>
               <div className="stationChar"><strong>Longitude:&nbsp;</strong>{station.longitude}</div>
             </div>
           </div>
