@@ -5,79 +5,13 @@ import '../styles/Map.css'
 import {downsamplePlotDataSegment} from "../utils/dataUtils";
 
 export function SeismicPlot(props) {
-  const [layout, setLayout] = useState({
-    xaxis: {
-      range: [props.range[0], props.range[1]],
-      tickangle: 0,
-      tickfont: {
-        family: 'Arial, sans-serif',
-        size: 9,
-        color: '#005896',
-      },
-      constrain: 'domain',
-    },
-    yaxis: {
-      range: [props.yData[0], props.yData[props.yData.length - 1]],
-    },
-    hovermode: 'closest',
-    width: 190,
-    height: 300,
-    margin: {l: 0, r: 10, b: 11, t: 0},
-    pad: {l: 4},
-  });
-  const [allData, setAllData] = useState([]);
-
-  useEffect(() => {
-    setLayout(({
-      ...layout,
-      xaxis: {
-        ...layout.xaxis,
-        range: [props.range[0], props.range[1]],
-      }
-    }));
-  }, [props.range[0], props.range[1]]);
-
-  useEffect(() => {
-    let data = [];
-    for (let i = 0; i < props.xData.length; i++) {
-      data.push({
-        x: props.xData[i],
-        y: props.yData[i],
-        type: 'scatter',
-        mode: 'lines',
-        line: {
-          color: '#005896',
-          width: 10,
-        },
-        hoverinfo: 'none',
-      });
-    }
-    setAllData(data);
-    setLayout(({
-      ...layout,
-      yaxis: {
-        ...layout.yaxis,
-        range: [props.yData[0], props.yData[props.yData.length - 1]],
-      }
-    }));
-  }, [props.xData, props.yData]);
-
   if (props.xData.length === 0 || props.yData.length === 0) {
     return <div className="lds-dual-ring">
     </div>
-    // return <div className="noDataWarning">NO DATA
-    // </div>
   }
 
-  // console.log(props.xData.length);
-  // console.log(props.yData.length);
-  // console.log(props.range[0]);
-  // console.log(props.range[1]);
+  const channel = props.name ? <div style={{textAlign: "center", marginTop: 3, marginBottom: 1}}>{props.name}</div> : <div/>;
 
-  const channel = props.name ? <div>{props.name}</div> : <div/>;
-
-  console.log(allData);
-  console.log(layout);
   return (
     <>
       {channel}
@@ -89,13 +23,13 @@ export function SeismicPlot(props) {
             y: props.yData,
             type: 'scatter',
             mode: 'lines+markers',
-            marker: {color: '#005896', size: 3},
+            marker: {color: props.color, size: 3},
             line: {
-              color: '#005896',
-              width: 1,
+              color: props.color,
+              width: 1.5,
             },
             hoverinfo: 'closest',
-            hovertemplate: 'packets: %{y}<extra></extra>'
+            hovertemplate: '%{y}<extra></extra>',
           },
         ]}
         layout={ {

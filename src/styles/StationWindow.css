@@ -9,8 +9,10 @@
   background-color: #ffffff;
   border: #999999 0.18em solid;
   width: 300px;
+  height: 200px;
   font-family: monospace;
   overflow: hidden;
+  box-shadow: -1px 1px 10px -2px rgba(0,0,0,.5);
 }
 
 .calendar {
@@ -42,6 +44,12 @@
   overflow: auto;
   font-family: monospace;
   border-radius: 3px;
+  box-shadow: 1px -1px 10px -2px rgba(0,0,0,.5);
+  /* The offset on the x-axis
+The offset on the y-axis
+A blur radius
+A spread radius
+A color */
 }
 
 .plotRef {
@@ -63,6 +71,7 @@
   padding: 0.3em 0 0 0.3em;
   display: flex;
   flex-direction: column;
+  background-color: #dde7e7;
 }
 
 .stationChar {
@@ -101,9 +110,26 @@
 
 .stationInfoBlock {
   margin-top: 8px;
-  border: solid #333333;
+  border: solid #595959;
+  border-radius: 3px;
   width: 98%;
   height: 100%;
+}
+
+.outer {
+  position: relative;
+  width: 600px;
+  height: 400px;
+}
+canvas {
+  position: absolute;
+}
+.percent {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+  font-size: 80px;
+  bottom: 0;
 }
 
 .stationInfo {
@@ -115,11 +141,11 @@
 .stationInfoHeader {
   width: 100%;
   font-weight: 800;
-  background: #e8e8e8;
+  background: #f1f0f0;
   border-bottom: #333333 0.1em solid;
   padding: 0.3em 0;
   font-family: monospace;
-  color: #21849a;
+  color: #005896;
   font-size: 1.6em;
   display: flex;
   justify-content: center;
@@ -185,7 +211,11 @@
 
 .stationNetwork {
   font-size: 1.3em;
-  color: #21849a;
+  color: #005896;
+  /*color: rgb(0, 87, 183);*/
+  /*color: rgb(0, 114, 229);*/
+  text-align: center;
+  margin-bottom: 5%;
 }
 
 .activityDescription {

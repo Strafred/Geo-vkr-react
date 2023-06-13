@@ -31,7 +31,8 @@
 }
 
 .seisplot {
-    border: 1px solid #333333;
+    border: 1px solid #999999;
+    border-radius: 1px;
 }
 
 .noDataWarning {
@@ -56,8 +57,8 @@
     height: 41px;
     margin: 8px;
     border-radius: 50%;
-    border: 6px solid #00487b;
-    border-color: #00487b transparent #00487b transparent;
+    border: 6px solid rgb(0, 87, 183);
+    border-color: rgb(0, 87, 183) transparent rgb(0, 87, 183) transparent;
     animation: lds-dual-ring 1.2s linear infinite;
 }
 

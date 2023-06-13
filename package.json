@@ -5,6 +5,11 @@
   "dependencies": {
     "@influxdata/influxdb-client": "^1.33.2",
     "@influxdata/influxdb-client-apis": "^1.33.2",
+    "@mui/material": "^5.13.5",
+    "@emotion/style": "latest",
+    "@emotion/core": "latest",
+    "@emotion/react": "latest",
+    "@emotion/styled": "latest",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
