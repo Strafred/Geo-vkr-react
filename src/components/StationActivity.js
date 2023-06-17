@@ -68,7 +68,7 @@ export const StationActivity = ({station, setClickedStation}) => {
              onClick={() => {
                setAreDatesChosen(!areDatesChosen);
                console.log("DATES ARE CHOSEN!");
-             }}>ok
+             }}><span>&#128269;</span>
         </div>
       </div>
       <Availability station={station.stationName} start={startDateSelected} end={endDateSelected} areDatesChosen={areDatesChosen}/>
