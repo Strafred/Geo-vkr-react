@@ -6,95 +6,49 @@ import '../styles/StationWindow.css';
 import './NetworkButton';
 import {StationMarker} from "./StationMarker";
 import {ChosenStationWindow} from "./ChosenStationWindow";
-import {Doughnut} from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-function Temperature({station, setClickedStation, temperature}) {
-  return <div className="stationActivityWindow">
-    <div className="stationName">
-      <div style={{margin: "auto"}}>
-        {station.stationName} temperature
-      </div>
-      <img className="x" onClick={() => {
-        setClickedStation("");
-      }} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="25" height="20"
-           alt="close station window"/>
-    </div>
-    <div style={{marginTop: -65, marginBottom: -70}}>
-    <Doughnut
-      data={{
-      labels: ["Red", "Orange", "Green"],
-      datasets: [{
-        data: [temperature, 60 - temperature],
-        backgroundColor: [
-          '#005896',
-          'rgba(46, 204, 113, 1)'
-        ],
-        borderColor: [
-          'rgba(255, 255, 255 ,1)',
-          'rgba(255, 255, 255 ,1)',
-        ],
-        borderWidth: 5,
-      }],
-    }} options={{
-      rotation: -90,
-      circumference: 180,
-      plugins: {
-        legend: {
-          display: false,
-        },
-        tooltip: {
-          enabled: false,
-        },
-      },
-      layout: {
-        padding: {
-          top: 0,
-          bottom: 0,
-        },
-      },
-    }} plugins={[
-      {
-        id: "textCenter",
-        afterDatasetsDraw(chart) {
-          const {ctx, data} = chart;
-          const meta = chart.getDatasetMeta(0);
-
-          console.log("meta", meta);
-          console.log("data", data);
-          console.log(data.datasets[0].data[0]);
-          ctx.font = "bold 40px sans-serif";
-          ctx.fillStyle = "#333"
-          ctx.textAlign = "center";
-
-          ctx.fillText(`${(data.datasets[0].data[0])}°`, meta.data[0].x, meta.data[0].y);
-        }
-      }
-    ]}/>
-    </div>
-  </div>
-}
+import {createDregMqttClient} from "../utils/mqttClientUtils";
+import {Temperature} from "./Temperature";
 
 export const Map = () => {
   const [chosenStation, setChosenStation] = useState(null);
   const [clickedStation, setClickedStation] = useState("");
   const [temperature, setTemperature] = useState(null);
+  const [loadedStations, setLoadedStations] = useState([]);
   console.log("temperature", temperature);
 
-  let counter = 0;
-  const stations = ["23-004", "23-005", "23-006", "23-013", "23-015", "23-018"];
+  useEffect(() => {
+    const client = createDregMqttClient();
+    client.subscribe(`DREG/+/gnss/loc`);
 
-  const loadedStations = stations.map((station) => {
-    counter += 0.3;
-    return {
-      stationName: station,
-      network: "DREG",
-      latitude: 65 + counter,
-      longitude: 90 + counter,
+    const stationLocMessageHandler = (topic, payload) => {
+      console.log("message: " + payload.toString());
+      console.log("topic: " + topic);
+
+      const stationName = topic.split("/")[1];
+      const [lat, long] = payload.toString().split(",");
+
+      setLoadedStations((prevLoadedStations) => {
+        console.log("prevLoadedStations", prevLoadedStations);
+        if (prevLoadedStations.filter(station => station.stationName === stationName).length === 0) {
+          return [...prevLoadedStations, {
+            stationName: stationName,
+            network: "DREG",
+            latitude: lat,
+            longitude: long,
+          }];
+        } else {
+          return prevLoadedStations;
+        }
+      });
     };
-  });
+
+    client.on('message', stationLocMessageHandler);
+
+    setTimeout(() => {
+      console.log("unsubscribing");
+      client.end();
+    }, 15000);
+  }, []);
 
   useEffect(() => {
     if (clickedStation !== "") {
@@ -130,10 +84,6 @@ export const Map = () => {
             setClickedStation={setClickedStation}
             temperature={temperature}
             />
-          {/*<StationActivity*/}
-          {/*  station={chosenStation}*/}
-          {/*  setClickedStation={setClickedStation}*/}
-          {/*/>*/}
         </>}
       <div className="leafletCredits">
         <img className="russianFlag" src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Russia.png"

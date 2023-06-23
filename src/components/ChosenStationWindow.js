@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {SeismicPlot} from "./ChannelsActivity";
-import mqtt from "precompiled-mqtt";
 import {InfluxDB} from '@influxdata/influxdb-client';
 import {getLastMinute} from "../utils/timeUtils";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import {createDregMqttClient} from "../utils/mqttClientUtils";
 
 let lastTopic = "#";
 const token = "S0vfLq6KkWCrOYGYeDsJ-AD38xbBIUdjJ5tsoeZmlAf1wUOlu99zgepe8-5Bg7GGbdpswaO4wlN8dQTbXCuRgw==";
@@ -76,14 +76,7 @@ export const ChosenStationWindow = ({station, setClickedStation, setTemperature}
           // setChannelThreePlotRange([channelThreeXDrawData[0], channelThreeXDrawData[channelThreeXDrawData.length - 1]]);
         });
 
-      const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
-      const client = mqtt.connect(`ws://81.26.80.192:8080`, {
-        clientId: clientId,
-        username: "dregserver2",
-        password: "T#eP0wer"
-      });
-      client.on('connect', () => console.log("connected"));
-      client.on('disconnect', () => console.log("disconnected"));
+      const client = createDregMqttClient();
       client.unsubscribe(lastTopic);
       client.subscribe(`DREG/{${station.stationName}}/metric/#`);
       lastTopic = `DREG/{${station.stationName}}/metric/#`;
