@@ -1,6 +1,7 @@
 import React from "react";
 import {Doughnut} from "react-chartjs-2";
 import {ArcElement, Chart as ChartJS, Legend, Tooltip} from "chart.js";
+import {formatStationName} from "../utils/formatUtils";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -8,7 +9,7 @@ export function Temperature({station, setClickedStation, temperature}) {
   return <div className="stationActivityWindow">
     <div className="stationName">
       <div style={{margin: "auto"}}>
-        {station.stationName} temperature
+        {formatStationName(station.stationName)} temperature
       </div>
       <img className="x" onClick={() => {
         setClickedStation("");

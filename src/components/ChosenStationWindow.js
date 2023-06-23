@@ -7,6 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import {createDregMqttClient} from "../utils/mqttClientUtils";
+import {formatStationName} from "../utils/formatUtils";
 
 let lastTopic = "#";
 const token = "S0vfLq6KkWCrOYGYeDsJ-AD38xbBIUdjJ5tsoeZmlAf1wUOlu99zgepe8-5Bg7GGbdpswaO4wlN8dQTbXCuRgw==";
@@ -117,7 +118,7 @@ export const ChosenStationWindow = ({station, setClickedStation, setTemperature}
     <div className="chosenStationWindow">
       <div className="stationName">
         <div style={{marginLeft: 53}}>
-          {station.stationName}
+          {formatStationName(station.stationName)}
         </div>
         <img className="x" onClick={() => {
           setClickedStation("");

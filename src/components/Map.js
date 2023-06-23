@@ -50,12 +50,8 @@ export const Map = () => {
   }, []);
 
   useEffect(() => {
-    if (clickedStation !== "") {
-      let station = loadedStations.find(station => station.stationName === clickedStation);
-      setChosenStation(station);
-    } else {
-      setChosenStation(null);
-    }
+    const station = loadedStations.find(station => station.stationName === clickedStation);
+    setChosenStation(clickedStation !== '' ? station : null);
   }, [clickedStation]);
 
   return (

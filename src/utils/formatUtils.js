@@ -7,3 +7,11 @@ export function formatNumber(num) {
     return num.toFixed(3).replace(/(\d)(?=(\d{3})+\.)/g, '$1,').slice(0, -1); // Formats numbers with more than 3 decimals
   }
 }
+
+export function formatStationName(name) {
+  if (name.length > 6) {
+    return name.slice(0, 5) + '...';
+  } else {
+    return name;
+  }
+}
