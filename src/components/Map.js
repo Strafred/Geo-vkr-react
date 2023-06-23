@@ -26,9 +26,11 @@ export const Map = () => {
 
       setLoadedStations((prevLoadedStations) => {
         console.log("prevLoadedStations", prevLoadedStations);
-        if (prevLoadedStations.filter(station => station.stationName === stationName).length === 0) {
+        const processedStationName = stationName.substring(1, stationName.length - 1);
+
+        if (prevLoadedStations.filter(station => station.stationName === processedStationName).length === 0) {
           return [...prevLoadedStations, {
-            stationName: stationName,
+            stationName: processedStationName,
             network: "DREG",
             latitude: lat,
             longitude: long,
