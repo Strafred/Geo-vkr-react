@@ -21,9 +21,6 @@ export const Map = () => {
     client.subscribe(`DREG/+/gnss/loc`);
 
     const stationLocMessageHandler = (topic, payload) => {
-      console.log("message: " + payload.toString());
-      console.log("topic: " + topic);
-
       const stationName = topic.split("/")[1];
       const [lat, long] = payload.toString().split(",");
 
