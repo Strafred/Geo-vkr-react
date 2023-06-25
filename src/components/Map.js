@@ -64,6 +64,7 @@ export const Map = () => {
             station={station}
             clickedStation={clickedStation}
             setClickedStation={setClickedStation}
+            setTemperature={setTemperature}
           />
         ))}
       </ MapContainer>

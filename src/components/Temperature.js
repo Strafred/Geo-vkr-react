@@ -16,7 +16,8 @@ export function Temperature({station, setClickedStation, temperature}) {
       }} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="25" height="20"
            alt="close station window"/>
     </div>
-    <div style={{marginTop: -65, marginBottom: -70}}>
+    {temperature == null ? <div className="lds-dual-ring">
+    </div> : <div style={{marginTop: -65, marginBottom: -70}}>
       <Doughnut
         data={{
           labels: ["Red", "Orange", "Green"],
@@ -67,6 +68,6 @@ export function Temperature({station, setClickedStation, temperature}) {
           }
         }
       ]}/>
-    </div>
+    </div>}
   </div>
 }

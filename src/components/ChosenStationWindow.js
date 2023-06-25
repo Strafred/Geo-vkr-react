@@ -136,6 +136,7 @@ export const ChosenStationWindow = ({station, setClickedStation, setTemperature}
         </div>
         <img className="x" onClick={() => {
           setClickedStation("");
+          setTemperature(null);
         }} src="https://www.freeiconspng.com/uploads/close-button-png-20.png" width="25" height="20"
              alt="close station window"/>
       </div>
