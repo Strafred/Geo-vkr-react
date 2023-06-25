@@ -30,6 +30,10 @@ export const ChosenStationWindow = ({station, setClickedStation, setTemperature}
   const [channelThreeYDrawData, setChannelThreeYDrawData] = useState([]);
   const [channelThreePlotRange, setChannelThreePlotRange] = useState(getLastTime(chosenTime));
 
+  const [satellitesXDrawData, setSatellitesXDrawData] = useState([]);
+  const [satellitesYDrawDara, setSatellitesYDrawData] = useState([]);
+  const [satellitesPlotRange, setSatellitesPlotRange] = useState(getLastTime(chosenTime));
+
   useEffect(() => {
       console.log("useEffect called");
       setChannelOneXDrawData([]);
@@ -41,17 +45,22 @@ export const ChosenStationWindow = ({station, setClickedStation, setTemperature}
       setChannelThreeXDrawData([]);
       setChannelThreeYDrawData([]);
 
+      setSatellitesXDrawData([]);
+      setSatellitesYDrawData([]);
+
       const [oldDate, currentDate] = getLastTime(chosenTime);
 
       setChannelOnePlotRange([oldDate, currentDate]);
       setChannelTwoPlotRange([oldDate, currentDate]);
       setChannelThreePlotRange([oldDate, currentDate]);
+      setSatellitesPlotRange([oldDate, currentDate]);
 
       const queryAPI = new InfluxDB({url, token}).getQueryApi(org);
 
       const firstChannelDataQuery = `from(bucket: "DREG") |> range(start: -${chosenTime}) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/metric/ch1_${chosenCharacteristic}") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
       const secondChannelDataQuery = `from(bucket: "DREG") |> range(start: -${chosenTime}) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/metric/ch2_${chosenCharacteristic}") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
       const thirdChannelDataQuery = `from(bucket: "DREG") |> range(start: -${chosenTime}) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/metric/ch3_${chosenCharacteristic}") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
+      const fourthDataQuery = `from(bucket: "DREG") |> range(start: -${chosenTime}) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/gnss/nsat") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
 
       const dataQuery = async (query, setXDrawData, setYDrawData) => {
         for await (const {values, tableMeta} of queryAPI.iterateRows(query)) {
@@ -83,10 +92,15 @@ export const ChosenStationWindow = ({station, setClickedStation, setTemperature}
           // setChannelThreePlotRange(getLastMinute());
           // setChannelThreePlotRange([channelThreeXDrawData[0], channelThreeXDrawData[channelThreeXDrawData.length - 1]]);
         });
+      dataQuery(fourthDataQuery, setSatellitesXDrawData, setSatellitesYDrawData)
+        .then(() => {
+          console.log("satellites loaded");
+        })
 
       const client = createDregMqttClient();
       client.unsubscribe(lastTopic);
       client.subscribe(`DREG/{${station.stationName}}/metric/#`);
+      client.subscribe(`DREG/{${station.stationName}}/gnss/nsat`);
       lastTopic = `DREG/{${station.stationName}}/metric/#`;
 
       client.on('message', (topic, payload) => {
@@ -118,6 +132,14 @@ export const ChosenStationWindow = ({station, setClickedStation, setTemperature}
           setChannelThreePlotRange([oldDate, currentDate]);
         } else if (topic === `DREG/{${station.stationName}}/metric/temperature`) {
           setTemperature(parseFloat(payload.toString()));
+        } else if (topic === `DREG/{${station.stationName}}/gnss/nsat`) {
+          const [oldDate, currentDate] = getLastTime(chosenTime);
+
+          const message = parseMetric(payload.toString());
+
+          setSatellitesXDrawData((xDrawData) => [...xDrawData, currentDate]);
+          setSatellitesYDrawData((yDrawData) => [...yDrawData, message]);
+          setSatellitesPlotRange([oldDate, currentDate]);
         }
       });
 
@@ -190,6 +212,10 @@ export const ChosenStationWindow = ({station, setClickedStation, setTemperature}
                      color={"#005896"}
                      range={channelThreePlotRange}
                      xData={channelThreeXDrawData} yData={channelThreeYDrawData}/>
+        <SeismicPlot name="Satellite: "
+                     color={"#c50ba7"}
+                     range={satellitesPlotRange}
+                     xData={satellitesXDrawData} yData={satellitesYDrawDara}/>
         <div className="stationInfoBlock">
           <div className="stationInfo">
             <div className="stationInfoHeader">

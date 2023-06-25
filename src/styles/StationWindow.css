@@ -40,7 +40,6 @@
   width: 200px;
   height: fit-content;
   max-height: 95%;
-  max-width: 20%;
   overflow: auto;
   font-family: monospace;
   border-radius: 3px;

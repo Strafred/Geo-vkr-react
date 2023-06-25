@@ -8,6 +8,42 @@ import {StationMarker} from "./StationMarker";
 import {ChosenStationWindow} from "./ChosenStationWindow";
 import {createDregMqttClient} from "../utils/mqttClientUtils";
 import {Temperature} from "./Temperature";
+import {InfluxDB} from "@influxdata/influxdb-client";
+
+const token = "S0vfLq6KkWCrOYGYeDsJ-AD38xbBIUdjJ5tsoeZmlAf1wUOlu99zgepe8-5Bg7GGbdpswaO4wlN8dQTbXCuRgw==";
+const org = "04a2af7a92291610";
+const url = "http://81.26.80.192:8086";
+
+// function Satellites({loadedStations}) {
+//   const [showSatellites, setShowSatellites] = useState(false);
+//   const [satellites, setSatellites] = useState([]);
+//   console.log(showSatellites);
+//
+//   return <div className="satellites">
+//     {showSatellites && <div>хуй</div>}
+//     <div className="satellitesShowButton" onClick={() => {
+//       setShowSatellites((prevState) => {return !prevState});
+//       loadedStations.forEach((station) => {
+//         const queryAPI = new InfluxDB({url, token}).getQueryApi(org);
+//
+//         const firstChannelDataQuery = `from(bucket: "DREG") |> range(start: -${chosenTime}) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/metric/ch1_${chosenCharacteristic}") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
+//         const secondChannelDataQuery = `from(bucket: "DREG") |> range(start: -${chosenTime}) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/metric/ch2_${chosenCharacteristic}") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
+//         const thirdChannelDataQuery = `from(bucket: "DREG") |> range(start: -${chosenTime}) |> filter (fn: (r) => r.topic == "DREG/{${station.stationName}}/metric/ch3_${chosenCharacteristic}") |> map (fn: (r) => ({time: r._time, value: r._value}))`;
+//
+//         const dataQuery = async (query, setXDrawData, setYDrawData) => {
+//           for await (const {values, tableMeta} of queryAPI.iterateRows(query)) {
+//             const o = tableMeta.toObject(values);
+//             console.log(o.time);
+//             setXDrawData((xDrawData) => [...xDrawData, new Date(o.time)]);
+//             setYDrawData((yDrawData) => [...yDrawData, o.value]);
+//           }
+//         }
+//       })
+//     }}>
+//       {showSatellites ? <div>Satellites &#x2935;</div> : <div>Satellites &#x2934;</div>}
+//     </div>
+//   </div>
+// }
 
 export const Map = () => {
   const [chosenStation, setChosenStation] = useState(null);
@@ -81,6 +117,9 @@ export const Map = () => {
             temperature={temperature}
             />
         </>}
+      {/*<Satellites*/}
+      {/*  loadedStations={loadedStations}*/}
+      {/*/>*/}
       <div className="leafletCredits">
         <img className="russianFlag" src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Russia.png"
              width="14" height="12" alt="russian flag"/>
