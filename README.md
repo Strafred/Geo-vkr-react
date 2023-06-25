@@ -1,4 +1,4 @@
-Deployed on http://84.237.89.72:88/
+Deployed on http://84.237.89.72:88/ (currently dreg version)
 
 ### In the project directory, you can run:
 
