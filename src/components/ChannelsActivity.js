@@ -23,7 +23,7 @@ export function SeismicPlot(props) {
             y: props.yData,
             type: 'scatter',
             mode: 'lines+markers',
-            marker: {color: props.color, size: 3},
+            marker: {color: props.color, size: 1},
             line: {
               color: props.color,
               width: 1.5,
@@ -44,6 +44,9 @@ export function SeismicPlot(props) {
               color: '#005896',
             },
             constrain: 'domain',
+          },
+          yaxis: {
+            visible: false,
           },
           margin: {l: 0, r: 0, b: 11, t: 0},
           pad: {l: 4},

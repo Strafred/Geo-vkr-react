@@ -7,6 +7,7 @@ export const createDregMqttClient = () => {
     username: "dregserver2",
     password: "T#eP0wer"
   });
+  client.on('error', (error) => console.log("error: ", error));
   client.on('connect', () => console.log("connected"));
   client.on('disconnect', () => console.log("disconnected"));
 

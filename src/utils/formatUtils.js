@@ -15,3 +15,16 @@ export function formatStationName(name) {
     return name;
   }
 }
+
+export function parseMetric(metric) {
+  const regex = /^-?[0-9]+$/;
+  if (regex.test(metric)) {
+    return parseInt(metric);
+  } else {
+    // console.log("vot tut");
+    // console.log(metric);
+    // console.log(metric.split(/[=\s]+/));
+    // console.log(parseInt(metric.split(/[=\s]+/)[3]));
+    return parseInt(metric.split(/[=\s]+/)[3]);
+  }
+}

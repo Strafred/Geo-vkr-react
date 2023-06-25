@@ -56,9 +56,9 @@ export function Temperature({station, setClickedStation, temperature}) {
             const {ctx, data} = chart;
             const meta = chart.getDatasetMeta(0);
 
-            console.log("meta", meta);
-            console.log("data", data);
-            console.log(data.datasets[0].data[0]);
+            // console.log("meta", meta);
+            // console.log("data", data);
+            // console.log(data.datasets[0].data[0]);
             ctx.font = "bold 40px sans-serif";
             ctx.fillStyle = "#333"
             ctx.textAlign = "center";
